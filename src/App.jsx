@@ -9,16 +9,14 @@ import ShareModal from './components/ShareModal';
 import DedicationModal from './components/DedicationModal';
 import PetalCanvas from './components/PetalCanvas';
 import { PRESET_BOUQUETS, decodeHashToBouquet } from './utils/bouquetEncoder';
-import { Sparkles, Layers, RefreshCcw } from 'lucide-react';
+import { Sparkles, Flower2, Package, Plus, Share2 } from 'lucide-react';
 
 export default function App() {
-  const [bouquet, setBouquet] = useState(PRESET_BOUQUETS[0]);
   const [mode, setMode] = useState('studio'); // 'studio' | 'preview'
-  const [theme, setTheme] = useState('parchment'); // 'parchment' | 'rose' | 'sage' | 'midnight'
+  const [theme, setTheme] = useState('rose');
+  const [mobileTab, setMobileTab] = useState('canvas'); // 'canvas' | 'flowers' | 'wrapper'
+  const [bouquet, setBouquet] = useState(PRESET_BOUQUETS[0]);
   const [selectedFlowerId, setSelectedFlowerId] = useState(null);
-  const [activeTab, setActiveTab] = useState('catalog'); // 'catalog' | 'wrapper' (for mobile / responsive tab switching)
-
-  // Modals
   const [editingFlower, setEditingFlower] = useState(null);
   const [recipientPopupFlower, setRecipientPopupFlower] = useState(null);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -26,35 +24,36 @@ export default function App() {
 
   // Check URL Hash on Load for Share Links
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.location.hash) {
-      const decoded = decodeHashToBouquet(window.location.hash);
-      if (decoded && decoded.flowers && decoded.flowers.length > 0) {
-        setBouquet(decoded);
-        setMode('preview'); // Automatically open recipient preview mode!
-        if (decoded.theme) setTheme(decoded.theme);
+    const hash = window.location.hash;
+    if (hash && hash.length > 5) {
+      const sharedBouquet = decodeHashToBouquet(hash);
+      if (sharedBouquet) {
+        setBouquet(sharedBouquet);
+        setMode('preview'); // Recipient direct presentation mode
+        if (sharedBouquet.theme) setTheme(sharedBouquet.theme);
       }
     }
   }, []);
 
-  // Synchronize body data-theme attribute
+  // Update Theme in DOM body
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
-  // Flower Actions
+  // Flower Add / Edit / Remove Handlers
   const handleAddFlower = (flowerData) => {
-    const newId = `flower-${Date.now()}`;
-    // Position flower in center arc fan shape
-    const flowerCount = bouquet.flowers.length;
-    const spreadX = 50 + (flowerCount % 2 === 0 ? 1 : -1) * Math.ceil(flowerCount / 2) * 12;
-    const spreadY = 35 + (flowerCount % 3) * 10;
+    const newId = `f-${Date.now()}`;
+    const count = bouquet.flowers.length;
+    // Organic spread around bouquet top
+    const spreadX = 50 + ((count % 5) - 2) * 14;
+    const spreadY = 30 + Math.floor(count / 5) * 12;
 
     const newFlower = {
       id: newId,
       type: flowerData.type,
       color: flowerData.color,
-      scale: 1.0,
-      rotation: Math.round((Math.random() - 0.5) * 30),
+      scale: 1,
+      rotation: (Math.random() - 0.5) * 30,
       position: {
         x: Math.max(25, Math.min(75, spreadX)),
         y: Math.max(25, Math.min(65, spreadY))
@@ -68,6 +67,9 @@ export default function App() {
       flowers: [...prev.flowers, newFlower]
     }));
     setSelectedFlowerId(newId);
+
+    // On mobile devices, smoothly return user to canvas tab so they immediately see the bloom added
+    setMobileTab('canvas');
   };
 
   const handleUpdateFlower = (id, updates) => {
@@ -102,6 +104,7 @@ export default function App() {
     setBouquet(preset);
     if (preset.theme) setTheme(preset.theme);
     setSelectedFlowerId(null);
+    setMobileTab('canvas');
   };
 
   // Recipient Note Popups
@@ -131,6 +134,7 @@ export default function App() {
       flowers: []
     });
     setMode('studio');
+    setMobileTab('canvas');
     setRecipientPopupFlower(null);
   };
 
@@ -152,6 +156,7 @@ export default function App() {
 
       {/* Main Studio / Preview Grid Layout */}
       <main
+        className="main-content"
         style={{
           flex: 1,
           padding: '0 1.5rem 2rem 1.5rem',
@@ -161,34 +166,88 @@ export default function App() {
         }}
       >
         {mode === 'studio' ? (
-          <div
-            className="app-grid"
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '320px 1fr 320px',
-              gap: '1.5rem',
-              alignItems: 'start'
-            }}
-          >
-            {/* Left Column: Flower Catalog */}
-            <FlowerCatalog onAddFlower={handleAddFlower} />
+          <div>
+            {/* Mobile / Tablet View Switcher Tabs (Only visible on screens <= 1024px) */}
+            <div className="mobile-studio-tabs">
+              <button
+                type="button"
+                className={`mobile-studio-tab-btn ${mobileTab === 'canvas' ? 'active' : ''}`}
+                onClick={() => setMobileTab('canvas')}
+              >
+                <Sparkles size={15} /> <span>Bouquet ({bouquet.flowers.length})</span>
+              </button>
+              <button
+                type="button"
+                className={`mobile-studio-tab-btn ${mobileTab === 'flowers' ? 'active' : ''}`}
+                onClick={() => setMobileTab('flowers')}
+              >
+                <Flower2 size={15} /> <span>Pick Blooms</span>
+              </button>
+              <button
+                type="button"
+                className={`mobile-studio-tab-btn ${mobileTab === 'wrapper' ? 'active' : ''}`}
+                onClick={() => setMobileTab('wrapper')}
+              >
+                <Package size={15} /> <span>Wrap & Tag</span>
+              </button>
+            </div>
 
-            {/* Middle Column: Bouquet Canvas Workspace */}
-            <BouquetCanvas
-              bouquet={bouquet}
-              mode={mode}
-              selectedFlowerId={selectedFlowerId}
-              setSelectedFlowerId={setSelectedFlowerId}
-              onUpdateFlower={handleUpdateFlower}
-              onDeleteFlower={handleDeleteFlower}
-              onOpenMessageModal={(flower) => setEditingFlower(flower)}
-              onFlowerClickRecipient={handleFlowerClickRecipient}
-              onOpenShare={() => setIsShareModalOpen(true)}
-              onOpenDedicationModal={() => setIsDedicationModalOpen(true)}
-            />
+            {/* Studio Workspace Layout */}
+            <div className="app-grid">
+              {/* Column 1: Flower Catalog */}
+              <div className={`mobile-tab-content ${mobileTab === 'flowers' ? 'active' : ''}`}>
+                <FlowerCatalog onAddFlower={handleAddFlower} />
+              </div>
 
-            {/* Right Column: Wrapper & Gift Tag Controls */}
-            <WrapperCustomizer bouquet={bouquet} onUpdateBouquet={handleUpdateBouquet} />
+              {/* Column 2: Bouquet Canvas Workspace */}
+              <div className={`mobile-tab-content ${mobileTab === 'canvas' ? 'active' : ''}`}>
+                <BouquetCanvas
+                  bouquet={bouquet}
+                  mode={mode}
+                  selectedFlowerId={selectedFlowerId}
+                  setSelectedFlowerId={setSelectedFlowerId}
+                  onUpdateFlower={handleUpdateFlower}
+                  onDeleteFlower={handleDeleteFlower}
+                  onOpenMessageModal={(flower) => setEditingFlower(flower)}
+                  onFlowerClickRecipient={handleFlowerClickRecipient}
+                  onOpenShare={() => setIsShareModalOpen(true)}
+                  onOpenDedicationModal={() => setIsDedicationModalOpen(true)}
+                />
+              </div>
+
+              {/* Column 3: Wrapper & Gift Tag Controls */}
+              <div className={`mobile-tab-content ${mobileTab === 'wrapper' ? 'active' : ''}`}>
+                <WrapperCustomizer bouquet={bouquet} onUpdateBouquet={handleUpdateBouquet} />
+              </div>
+            </div>
+
+            {/* Mobile Canvas Actions Bar (Below canvas on mobile screens) */}
+            <div className="mobile-canvas-actions">
+              <button
+                type="button"
+                onClick={() => setMobileTab('flowers')}
+                className="sketch-button sketch-button-primary"
+                style={{ flex: 1, fontSize: '0.85rem', padding: '0.6rem 0.75rem' }}
+              >
+                <Plus size={16} /> Add Bloom
+              </button>
+              <button
+                type="button"
+                onClick={() => setMobileTab('wrapper')}
+                className="sketch-button"
+                style={{ flex: 1, fontSize: '0.85rem', padding: '0.6rem 0.75rem', background: 'var(--bg-card)' }}
+              >
+                <Package size={16} /> Wrap & Tag
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsShareModalOpen(true)}
+                className="sketch-button"
+                style={{ flex: 1, fontSize: '0.85rem', padding: '0.6rem 0.75rem', background: 'var(--primary-light)', color: 'var(--primary)' }}
+              >
+                <Share2 size={16} /> Share 💌
+              </button>
+            </div>
           </div>
         ) : (
           /* Presentation / Recipient Full Screen View */

@@ -35,8 +35,7 @@ export default function FlowerCatalog({ onAddFlower }) {
         padding: '1.25rem',
         display: 'flex',
         flexDirection: 'column',
-        gap: '1.25rem',
-        maxHeight: 'calc(100vh - 120px)',
+        gap: '1.2rem',
         overflowY: 'auto'
       }}
     >
@@ -46,7 +45,7 @@ export default function FlowerCatalog({ onAddFlower }) {
           <Sparkles size={18} />
           <h2 className="font-heading" style={{ fontSize: '1.2rem' }}>Flower Palette</h2>
         </div>
-        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+        <p style={{ fontSize: '0.84rem', color: 'var(--text-muted)', marginTop: '2px' }}>
           Select real blooms to send your heart & secret notes across the miles
         </p>
       </div>
@@ -56,7 +55,7 @@ export default function FlowerCatalog({ onAddFlower }) {
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(5, 1fr)',
-          gap: '0.5rem'
+          gap: '0.45rem'
         }}
       >
         {FLOWER_TYPES.map((flower) => {
@@ -64,6 +63,7 @@ export default function FlowerCatalog({ onAddFlower }) {
           return (
             <button
               key={flower.id}
+              type="button"
               onClick={() => handleSelectType(flower)}
               title={`${flower.name} - ${flower.desc}`}
               style={{
@@ -71,7 +71,7 @@ export default function FlowerCatalog({ onAddFlower }) {
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                padding: '0.5rem 0.25rem',
+                padding: '0.45rem 0.2rem',
                 borderRadius: '12px',
                 border: isSelected ? '2px solid var(--primary)' : '1px solid var(--bg-card-border)',
                 background: isSelected ? 'var(--primary-light)' : 'var(--bg-secondary)',
@@ -79,12 +79,12 @@ export default function FlowerCatalog({ onAddFlower }) {
                 transition: 'all 0.15s ease'
               }}
             >
-              <FlowerSvg type={flower.id} color={isSelected ? currentColor : flower.defaultColor} size={36} />
+              <FlowerSvg type={flower.id} color={isSelected ? currentColor : flower.defaultColor} size={34} />
               <span
                 style={{
-                  fontSize: '0.68rem',
+                  fontSize: '0.66rem',
                   fontWeight: 600,
-                  marginTop: '4px',
+                  marginTop: '3px',
                   color: isSelected ? 'var(--primary)' : 'var(--text-muted)',
                   textAlign: 'center',
                   lineHeight: '1.15',
@@ -122,14 +122,14 @@ export default function FlowerCatalog({ onAddFlower }) {
         {/* Live Flower SVG Preview */}
         <div
           style={{
-            padding: '1rem',
+            padding: '0.85rem',
             borderRadius: '50%',
             background: 'var(--bg-card)',
             boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.05)',
             border: '1px solid var(--bg-card-border)'
           }}
         >
-          <FlowerSvg type={selectedType.id} color={currentColor} size={84} />
+          <FlowerSvg type={selectedType.id} color={currentColor} size={76} />
         </div>
 
         {/* Color Palette Picker */}
@@ -141,19 +141,20 @@ export default function FlowerCatalog({ onAddFlower }) {
             </span>
           </div>
 
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
             {COLOR_PALETTE.map((c) => (
               <button
                 key={c}
+                type="button"
                 onClick={() => setCurrentColor(c)}
                 style={{
-                  width: '24px',
-                  height: '24px',
+                  width: '28px',
+                  height: '28px',
                   borderRadius: '50%',
                   backgroundColor: c,
-                  border: currentColor === c ? '2px solid var(--border-sketch)' : '1px solid rgba(0,0,0,0.15)',
+                  border: currentColor === c ? '2.5px solid var(--border-sketch)' : '1px solid rgba(0,0,0,0.15)',
                   cursor: 'pointer',
-                  transform: currentColor === c ? 'scale(1.2)' : 'scale(1)',
+                  transform: currentColor === c ? 'scale(1.18)' : 'scale(1)',
                   transition: 'transform 0.15s ease'
                 }}
               />
@@ -164,8 +165,8 @@ export default function FlowerCatalog({ onAddFlower }) {
               onChange={(e) => setCurrentColor(e.target.value)}
               title="Custom Hex Color"
               style={{
-                width: '24px',
-                height: '24px',
+                width: '28px',
+                height: '28px',
                 padding: 0,
                 border: 'none',
                 borderRadius: '50%',
@@ -183,13 +184,13 @@ export default function FlowerCatalog({ onAddFlower }) {
           </label>
           <input
             type="text"
-            placeholder="e.g. 'Counting every mile until I can hold you again...'"
+            placeholder="e.g. 'Counting every mile until our airport hug...'"
             value={initialNote}
             onChange={(e) => setInitialNote(e.target.value)}
             className="font-handwriting"
             style={{
               width: '100%',
-              padding: '0.5rem 0.75rem',
+              padding: '0.55rem 0.75rem',
               fontSize: '1rem',
               borderRadius: '8px',
               border: '1px solid var(--bg-card-border)',
@@ -202,9 +203,10 @@ export default function FlowerCatalog({ onAddFlower }) {
 
         {/* Add Flower Button */}
         <button
+          type="button"
           onClick={handleAdd}
           className="sketch-button sketch-button-primary"
-          style={{ width: '100%', marginTop: '0.2rem' }}
+          style={{ width: '100%', marginTop: '0.2rem', padding: '0.65rem' }}
         >
           <Plus size={18} /> Add Stem to Bouquet
         </button>
@@ -212,7 +214,7 @@ export default function FlowerCatalog({ onAddFlower }) {
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.78rem', color: 'var(--text-muted)', background: 'var(--bg-secondary)', padding: '0.6rem', borderRadius: '8px' }}>
         <Info size={16} color="var(--primary)" />
-        <span>You can move, rotate, resize, and edit hidden notes for any flower on the canvas!</span>
+        <span>You can drag, rotate, resize, and add secret love notes to any bloom on the canvas!</span>
       </div>
     </aside>
   );

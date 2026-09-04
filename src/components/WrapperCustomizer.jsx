@@ -1,5 +1,5 @@
 import React from 'react';
-import { Package, Ribbon, Tag, Palette, Sparkles, Send, Plane } from 'lucide-react';
+import { Package, Ribbon, Sparkles, Plane } from 'lucide-react';
 
 export default function WrapperCustomizer({ bouquet, onUpdateBouquet }) {
   const {
@@ -32,8 +32,7 @@ export default function WrapperCustomizer({ bouquet, onUpdateBouquet }) {
         padding: '1.25rem',
         display: 'flex',
         flexDirection: 'column',
-        gap: '1.25rem',
-        maxHeight: 'calc(100vh - 120px)',
+        gap: '1.2rem',
         overflowY: 'auto'
       }}
     >
@@ -43,7 +42,7 @@ export default function WrapperCustomizer({ bouquet, onUpdateBouquet }) {
           <Package size={18} />
           <h2 className="font-heading" style={{ fontSize: '1.2rem' }}>Wrap & Gift Tag</h2>
         </div>
-        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+        <p style={{ fontSize: '0.84rem', color: 'var(--text-muted)', marginTop: '2px' }}>
           Customize the outer packaging, ribbon tie, and dedication note
         </p>
       </div>
@@ -57,6 +56,7 @@ export default function WrapperCustomizer({ bouquet, onUpdateBouquet }) {
           {WRAPPER_STYLES.map((w) => (
             <button
               key={w.id}
+              type="button"
               onClick={() => handleWrapperChange(w.id)}
               style={{
                 display: 'flex',
@@ -72,8 +72,8 @@ export default function WrapperCustomizer({ bouquet, onUpdateBouquet }) {
               }}
             >
               <div>
-                <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-main)' }}>{w.name}</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{w.desc}</div>
+                <div style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-main)' }}>{w.name}</div>
+                <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>{w.desc}</div>
               </div>
               {wrapperStyle === w.id && <Sparkles size={16} color="var(--primary)" />}
             </button>
@@ -89,17 +89,18 @@ export default function WrapperCustomizer({ bouquet, onUpdateBouquet }) {
             Ribbon Tie Color:
           </label>
         </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
           {RIBBON_COLORS.map((c) => (
             <button
               key={c}
+              type="button"
               onClick={() => onUpdateBouquet({ ribbonColor: c })}
               style={{
-                width: '26px',
-                height: '26px',
+                width: '30px',
+                height: '30px',
                 borderRadius: '50%',
                 backgroundColor: c,
-                border: ribbonColor === c ? '2px solid var(--border-sketch)' : '1px solid rgba(0,0,0,0.15)',
+                border: ribbonColor === c ? '2.5px solid var(--border-sketch)' : '1px solid rgba(0,0,0,0.15)',
                 cursor: 'pointer',
                 transform: ribbonColor === c ? 'scale(1.2)' : 'scale(1)',
                 transition: 'transform 0.15s ease'
@@ -109,23 +110,21 @@ export default function WrapperCustomizer({ bouquet, onUpdateBouquet }) {
         </div>
       </div>
 
-      {/* Gift Tag Customizer for Long Distance Love */}
+      {/* Airmail Dedication Tag Inputs */}
       <div
         style={{
           background: 'var(--bg-secondary)',
           padding: '1rem',
-          borderRadius: '16px',
+          borderRadius: '14px',
           border: '1.5px dashed var(--border-sketch)',
           display: 'flex',
           flexDirection: 'column',
           gap: '0.75rem'
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-          <Tag size={16} color="var(--primary)" />
-          <span style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-main)' }}>
-            Long Distance Dedication Tag 💌
-          </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--primary)' }}>
+          <Plane size={16} />
+          <h3 className="font-heading" style={{ fontSize: '1rem' }}>Airmail Dedication Tag</h3>
         </div>
 
         <div>
@@ -140,10 +139,11 @@ export default function WrapperCustomizer({ bouquet, onUpdateBouquet }) {
             style={{
               width: '100%',
               padding: '0.45rem 0.65rem',
-              fontSize: '0.88rem',
+              fontSize: '0.9rem',
               borderRadius: '8px',
               border: '1px solid var(--bg-card-border)',
               background: 'var(--bg-card)',
+              color: 'var(--text-main)',
               outline: 'none'
             }}
           />
@@ -161,10 +161,11 @@ export default function WrapperCustomizer({ bouquet, onUpdateBouquet }) {
             style={{
               width: '100%',
               padding: '0.45rem 0.65rem',
-              fontSize: '0.88rem',
+              fontSize: '0.9rem',
               borderRadius: '8px',
               border: '1px solid var(--bg-card-border)',
               background: 'var(--bg-card)',
+              color: 'var(--text-main)',
               outline: 'none'
             }}
           />
@@ -172,7 +173,7 @@ export default function WrapperCustomizer({ bouquet, onUpdateBouquet }) {
 
         <div>
           <label style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '2px' }}>
-            Miles Apart / Airmail Note:
+            Miles Apart / Distance:
           </label>
           <input
             type="text"
@@ -182,10 +183,11 @@ export default function WrapperCustomizer({ bouquet, onUpdateBouquet }) {
             style={{
               width: '100%',
               padding: '0.45rem 0.65rem',
-              fontSize: '0.88rem',
+              fontSize: '0.9rem',
               borderRadius: '8px',
               border: '1px solid var(--bg-card-border)',
               background: 'var(--bg-card)',
+              color: 'var(--text-main)',
               outline: 'none'
             }}
           />
@@ -195,19 +197,22 @@ export default function WrapperCustomizer({ bouquet, onUpdateBouquet }) {
           <label style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '2px' }}>
             Dedication Message:
           </label>
-          <input
-            type="text"
-            placeholder="e.g. 'Distance means nothing when someone means everything.'"
+          <textarea
+            rows="2"
+            placeholder="A short romantic note to print on the gift tag..."
             value={tagMessage}
             onChange={(e) => onUpdateBouquet({ tagMessage: e.target.value })}
+            className="font-handwriting"
             style={{
               width: '100%',
               padding: '0.45rem 0.65rem',
-              fontSize: '0.88rem',
+              fontSize: '0.95rem',
               borderRadius: '8px',
               border: '1px solid var(--bg-card-border)',
               background: 'var(--bg-card)',
-              outline: 'none'
+              color: 'var(--text-main)',
+              outline: 'none',
+              resize: 'none'
             }}
           />
         </div>
