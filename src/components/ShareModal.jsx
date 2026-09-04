@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { X, Copy, Check, Share2, Heart, Gift, MessageCircle, Send, Mail, Plane, Sparkles } from 'lucide-react';
+import { X, Copy, Check, Share2, Heart, Gift, MessageCircle, Send, Mail, Plane, Sparkles, Edit3 } from 'lucide-react';
 import { encodeBouquetToHash } from '../utils/bouquetEncoder';
 
-export default function ShareModal({ bouquet, onClose }) {
+export default function ShareModal({ bouquet, onClose, onUpdateBouquet }) {
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedMessage, setCopiedMessage] = useState(false);
+  const [isEditingTag, setIsEditingTag] = useState(false);
 
   const hash = encodeBouquetToHash(bouquet);
   const shareUrl = `${window.location.origin}${window.location.pathname}#${hash}`;
@@ -111,7 +112,7 @@ export default function ShareModal({ bouquet, onClose }) {
           </div>
         </div>
 
-        {/* Long Distance Summary Card */}
+        {/* Long Distance Summary Card with Instant Edit Option */}
         <div
           style={{
             background: 'var(--primary-light)',
@@ -119,27 +120,99 @@ export default function ShareModal({ bouquet, onClose }) {
             borderRadius: '12px',
             border: '1.5px dashed var(--primary)',
             marginBottom: '1.25rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: '0.5rem',
             fontSize: '0.85rem'
           }}
         >
-          <div>
-            <div style={{ fontWeight: 700, color: 'var(--primary)' }}>
-              💌 {bouquet.tagFrom || 'You'} ✈️ {bouquet.tagTo || 'Your Love'}
-            </div>
-            {bouquet.tagDistance && (
-              <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                {bouquet.tagDistance}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <div>
+              <div style={{ fontWeight: 700, color: 'var(--primary)', fontSize: '0.95rem' }}>
+                💌 {bouquet.tagFrom || 'You'} ✈️ {bouquet.tagTo || 'Your Love'}
               </div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                {bouquet.tagDistance || 'Miles Apart'} • {totalCount} Bloom{totalCount === 1 ? '' : 's'} ({notesCount} Secret Note{notesCount === 1 ? '' : 's'})
+              </div>
+            </div>
+
+            {onUpdateBouquet && (
+              <button
+                type="button"
+                onClick={() => setIsEditingTag(!isEditingTag)}
+                className="sketch-button"
+                style={{ padding: '0.3rem 0.65rem', fontSize: '0.78rem', background: '#ffffff' }}
+              >
+                <Edit3 size={12} color="var(--primary)" /> {isEditingTag ? 'Close Edit' : 'Edit Names / Details'}
+              </button>
             )}
           </div>
-          <div style={{ fontWeight: 600, color: 'var(--text-main)', fontSize: '0.82rem' }}>
-            {totalCount} Bloom{totalCount === 1 ? '' : 's'} • {notesCount} Secret Note{notesCount === 1 ? '' : 's'}
-          </div>
+
+          {/* Inline Edit Fields in Share Modal */}
+          {isEditingTag && onUpdateBouquet && (
+            <div style={{ marginTop: '0.85rem', paddingTop: '0.75rem', borderTop: '1px dashed var(--primary)', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem' }}>
+                <div>
+                  <label style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-main)', display: 'block', marginBottom: '2px' }}>
+                    To (Loved One):
+                  </label>
+                  <input
+                    type="text"
+                    value={bouquet.tagTo || ''}
+                    placeholder="e.g. Sarah, My Love"
+                    onChange={(e) => onUpdateBouquet({ tagTo: e.target.value })}
+                    style={{
+                      width: '100%',
+                      padding: '0.4rem 0.6rem',
+                      fontSize: '0.85rem',
+                      borderRadius: '6px',
+                      border: '1px solid var(--border-sketch)',
+                      background: '#ffffff',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-main)', display: 'block', marginBottom: '2px' }}>
+                    From (You):
+                  </label>
+                  <input
+                    type="text"
+                    value={bouquet.tagFrom || ''}
+                    placeholder="e.g. Liam, Yours Always"
+                    onChange={(e) => onUpdateBouquet({ tagFrom: e.target.value })}
+                    style={{
+                      width: '100%',
+                      padding: '0.4rem 0.6rem',
+                      fontSize: '0.85rem',
+                      borderRadius: '6px',
+                      border: '1px solid var(--border-sketch)',
+                      background: '#ffffff',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-main)', display: 'block', marginBottom: '2px' }}>
+                  Distance / Airmail Note:
+                </label>
+                <input
+                  type="text"
+                  value={bouquet.tagDistance || ''}
+                  placeholder="e.g. 500 Miles Apart, Across the Ocean"
+                  onChange={(e) => onUpdateBouquet({ tagDistance: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '0.4rem 0.6rem',
+                    fontSize: '0.85rem',
+                    borderRadius: '6px',
+                    border: '1px solid var(--border-sketch)',
+                    background: '#ffffff',
+                    outline: 'none'
+                  }}
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Direct Link Section */}

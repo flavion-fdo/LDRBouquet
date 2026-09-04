@@ -6,6 +6,7 @@ import WrapperCustomizer from './components/WrapperCustomizer';
 import MessageEditorModal from './components/MessageEditorModal';
 import MessagePopupCard from './components/MessagePopupCard';
 import ShareModal from './components/ShareModal';
+import DedicationModal from './components/DedicationModal';
 import PetalCanvas from './components/PetalCanvas';
 import { PRESET_BOUQUETS, decodeHashToBouquet } from './utils/bouquetEncoder';
 import { Sparkles, Layers, RefreshCcw } from 'lucide-react';
@@ -21,6 +22,7 @@ export default function App() {
   const [editingFlower, setEditingFlower] = useState(null);
   const [recipientPopupFlower, setRecipientPopupFlower] = useState(null);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isDedicationModalOpen, setIsDedicationModalOpen] = useState(false);
 
   // Check URL Hash on Load for Share Links
   useEffect(() => {
@@ -182,6 +184,7 @@ export default function App() {
               onOpenMessageModal={(flower) => setEditingFlower(flower)}
               onFlowerClickRecipient={handleFlowerClickRecipient}
               onOpenShare={() => setIsShareModalOpen(true)}
+              onOpenDedicationModal={() => setIsDedicationModalOpen(true)}
             />
 
             {/* Right Column: Wrapper & Gift Tag Controls */}
@@ -208,6 +211,7 @@ export default function App() {
               onDeleteFlower={handleDeleteFlower}
               onOpenMessageModal={(flower) => setEditingFlower(flower)}
               onFlowerClickRecipient={handleFlowerClickRecipient}
+              onOpenDedicationModal={() => setIsDedicationModalOpen(true)}
             />
           </div>
         )}
@@ -253,8 +257,19 @@ export default function App() {
       )}
 
       {isShareModalOpen && (
-        <ShareModal bouquet={bouquet} onClose={() => setIsShareModalOpen(false)} />
+        <ShareModal
+          bouquet={bouquet}
+          onClose={() => setIsShareModalOpen(false)}
+          onUpdateBouquet={handleUpdateBouquet}
+        />
       )}
+
+      <DedicationModal
+        isOpen={isDedicationModalOpen}
+        onClose={() => setIsDedicationModalOpen(false)}
+        bouquet={bouquet}
+        onUpdateBouquet={handleUpdateBouquet}
+      />
     </div>
   );
 }

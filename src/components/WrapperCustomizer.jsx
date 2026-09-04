@@ -130,11 +130,11 @@ export default function WrapperCustomizer({ bouquet, onUpdateBouquet }) {
 
         <div>
           <label style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '2px' }}>
-            To (Loved One & City):
+            To (Loved One's Name / City):
           </label>
           <input
             type="text"
-            placeholder="e.g. 'Emma in London 🇬🇧'"
+            placeholder="e.g. 'My Dearest', 'Sarah', 'Elena'..."
             value={tagTo}
             onChange={(e) => onUpdateBouquet({ tagTo: e.target.value })}
             style={{
@@ -151,11 +151,11 @@ export default function WrapperCustomizer({ bouquet, onUpdateBouquet }) {
 
         <div>
           <label style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '2px' }}>
-            From (You & City):
+            From (Your Name / City):
           </label>
           <input
             type="text"
-            placeholder="e.g. 'Noah in New York 🇺🇸'"
+            placeholder="e.g. 'Yours Always', 'Liam', 'Noah'..."
             value={tagFrom}
             onChange={(e) => onUpdateBouquet({ tagFrom: e.target.value })}
             style={{
@@ -176,7 +176,7 @@ export default function WrapperCustomizer({ bouquet, onUpdateBouquet }) {
           </label>
           <input
             type="text"
-            placeholder="e.g. '3,450 miles apart ✈️'"
+            placeholder="e.g. 'Miles Apart ✈️', 'Across the Ocean'..."
             value={tagDistance}
             onChange={(e) => onUpdateBouquet({ tagDistance: e.target.value })}
             style={{

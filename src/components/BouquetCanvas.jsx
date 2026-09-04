@@ -11,7 +11,8 @@ export default function BouquetCanvas({
   onDeleteFlower,
   onOpenMessageModal,
   onFlowerClickRecipient,
-  onOpenShare
+  onOpenShare,
+  onOpenDedicationModal
 }) {
   const {
     flowers = [],
@@ -179,20 +180,42 @@ export default function BouquetCanvas({
             </span>
           </div>
 
-          {flowers.length > 0 && onOpenShare && (
-            <button
-              onClick={onOpenShare}
-              className="sketch-button sketch-button-primary"
-              style={{
-                pointerEvents: 'auto',
-                fontSize: '0.85rem',
-                padding: '0.45rem 1rem',
-                boxShadow: '0 4px 12px rgba(200,90,84,0.3)'
-              }}
-            >
-              <Share2 size={14} /> Finish Bouquet & Share 💌
-            </button>
-          )}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', pointerEvents: 'auto' }}>
+            {onOpenDedicationModal && (
+              <button
+                onClick={onOpenDedicationModal}
+                className="sketch-button"
+                style={{
+                  fontSize: '0.82rem',
+                  padding: '0.45rem 0.85rem',
+                  background: 'var(--bg-card)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}
+                title="Edit To, From, Distance & Dedication note"
+              >
+                <Tag size={13} color="var(--primary)" /> Edit Names & Tag
+              </button>
+            )}
+
+            {flowers.length > 0 && onOpenShare && (
+              <button
+                onClick={onOpenShare}
+                className="sketch-button sketch-button-primary"
+                style={{
+                  fontSize: '0.85rem',
+                  padding: '0.45rem 1rem',
+                  boxShadow: '0 4px 12px rgba(200,90,84,0.3)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}
+              >
+                <Share2 size={14} /> Finish Bouquet & Share 💌
+              </button>
+            )}
+          </div>
         </div>
       )}
 
@@ -357,10 +380,12 @@ export default function BouquetCanvas({
       <div style={{ position: 'relative', zIndex: 18, marginTop: 'auto' }}>
         {renderWrapper()}
 
-        {/* Gift Tag Badge */}
-        {(tagTo || tagFrom || tagDistance || tagMessage) && (
+        {/* Gift Tag Badge (Directly clickable to edit in Studio mode) */}
+        {(mode === 'studio' || tagTo || tagFrom || tagDistance || tagMessage) && (
           <div
+            onClick={mode === 'studio' ? onOpenDedicationModal : undefined}
             className="sketch-box font-handwriting"
+            title={mode === 'studio' ? "Click to edit To, From, Distance & Dedication" : undefined}
             style={{
               position: 'absolute',
               bottom: '25px',
@@ -368,23 +393,31 @@ export default function BouquetCanvas({
               transform: 'rotate(-8deg)',
               background: '#fef3c7',
               color: '#342a22',
-              padding: '0.6rem 0.9rem',
-              maxWidth: '185px',
+              padding: '0.65rem 0.95rem',
+              maxWidth: '205px',
               fontSize: '1rem',
-              lineHeight: '1.2',
+              lineHeight: '1.25',
               border: '2px solid var(--border-sketch)',
-              boxShadow: '2px 4px 0px var(--border-sketch)',
-              zIndex: 22
+              boxShadow: mode === 'studio' ? '3px 5px 0px var(--border-sketch)' : '2px 4px 0px var(--border-sketch)',
+              zIndex: 22,
+              cursor: mode === 'studio' ? 'pointer' : 'default',
+              userSelect: 'none',
+              transition: 'all 0.15s ease'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.72rem', fontFamily: 'var(--font-body)', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '2px' }}>
-              <Tag size={12} /> AIRMAIL DEDICATION
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px', fontSize: '0.72rem', fontFamily: 'var(--font-body)', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '3px' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}><Tag size={12} /> AIRMAIL TAG</span>
+              {mode === 'studio' && (
+                <span style={{ color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '2px', fontSize: '0.68rem', fontWeight: 700, background: 'rgba(200,90,84,0.12)', padding: '1px 5px', borderRadius: '4px' }}>
+                  <Edit3 size={10} /> Edit
+                </span>
+              )}
             </div>
-            {tagTo && <div><strong>To:</strong> {tagTo}</div>}
-            {tagFrom && <div><strong>From:</strong> {tagFrom}</div>}
-            {tagDistance && (
-              <div style={{ fontSize: '0.8rem', color: 'var(--primary)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '3px' }}>
-                <Plane size={11} /> {tagDistance}
+            <div><strong>To:</strong> {tagTo || (mode === 'studio' ? <span style={{ opacity: 0.55, fontStyle: 'italic' }}>Click to type</span> : 'My Love')}</div>
+            <div><strong>From:</strong> {tagFrom || (mode === 'studio' ? <span style={{ opacity: 0.55, fontStyle: 'italic' }}>Click to type</span> : 'With Love')}</div>
+            {(tagDistance || mode === 'studio') && (
+              <div style={{ fontSize: '0.8rem', color: 'var(--primary)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '3px', marginTop: '2px' }}>
+                <Plane size={11} /> {tagDistance || (mode === 'studio' ? <span style={{ opacity: 0.55, fontStyle: 'italic', fontSize: '0.75rem' }}>+ Add distance</span> : 'Miles Apart')}
               </div>
             )}
             {tagMessage && <div style={{ fontSize: '0.85rem', fontStyle: 'italic', marginTop: '3px', color: '#92400e' }}>"{tagMessage}"</div>}
