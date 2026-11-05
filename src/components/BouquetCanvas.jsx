@@ -7,8 +7,12 @@ export default function BouquetCanvas({
   mode,
   selectedFlowerId,
   setSelectedFlowerId,
+  selectedGreeneryId,
+  setSelectedGreeneryId,
   onUpdateFlower,
   onDeleteFlower,
+  onUpdateGreenery,
+  onDeleteGreenery,
   onOpenMessageModal,
   onFlowerClickRecipient,
   onOpenShare,
@@ -16,6 +20,7 @@ export default function BouquetCanvas({
 }) {
   const {
     flowers = [],
+    greenery = [],
     wrapperStyle = 'kraft',
     ribbonColor = '#e11d48',
     tagTo,
@@ -26,7 +31,8 @@ export default function BouquetCanvas({
 
   const canvasRef = useRef(null);
   const [canvasSize, setCanvasSize] = useState({ width: 560, height: 580 });
-  const [draggingFlowerId, setDraggingFlowerId] = useState(null);
+  const [draggingId, setDraggingId] = useState(null);
+  const [draggingType, setDraggingType] = useState(null); // 'flower' | 'greenery'
   const dragRef = useRef(null);
 
   // Responsive Canvas Size Tracking via ResizeObserver
@@ -65,30 +71,38 @@ export default function BouquetCanvas({
 
   const flowersWithNotes = flowers.filter((f) => (f.message && f.message.trim()) || f.mediaImage || f.mediaAudio || f.mediaVideo).length;
 
-  // Drag-and-drop pointer handling with touch support
-  const handlePointerDown = (e, flower) => {
+  // Drag-and-drop pointer handling with touch support (for flowers & greenery)
+  const handlePointerDownItem = (e, item, type) => {
     if (mode !== 'studio') return;
     e.stopPropagation();
 
     dragRef.current = {
-      flowerId: flower.id,
+      type,
+      id: item.id,
       startX: e.clientX,
       startY: e.clientY,
-      origX: flower.position.x,
-      origY: flower.position.y,
+      origX: item.position.x,
+      origY: item.position.y,
       hasMoved: false
     };
 
-    setSelectedFlowerId(flower.id);
+    if (type === 'flower') {
+      setSelectedFlowerId(item.id);
+      if (setSelectedGreeneryId) setSelectedGreeneryId(null);
+    } else {
+      if (setSelectedGreeneryId) setSelectedGreeneryId(item.id);
+      setSelectedFlowerId(null);
+    }
 
     const onPointerMove = (moveEvent) => {
-      if (!dragRef.current || dragRef.current.flowerId !== flower.id) return;
+      if (!dragRef.current || dragRef.current.id !== item.id) return;
       const dx = moveEvent.clientX - dragRef.current.startX;
       const dy = moveEvent.clientY - dragRef.current.startY;
 
       if (!dragRef.current.hasMoved && Math.hypot(dx, dy) > 3) {
         dragRef.current.hasMoved = true;
-        setDraggingFlowerId(flower.id);
+        setDraggingId(item.id);
+        setDraggingType(type);
       }
 
       if (dragRef.current.hasMoved && canvasRef.current) {
@@ -96,18 +110,25 @@ export default function BouquetCanvas({
         const percentDx = (dx / rect.width) * 100;
         const percentDy = (dy / rect.height) * 100;
 
-        const clampedX = Math.round(Math.max(12, Math.min(88, dragRef.current.origX + percentDx)) * 10) / 10;
-        const clampedY = Math.round(Math.max(10, Math.min(65, dragRef.current.origY + percentDy)) * 10) / 10;
+        const clampedX = Math.round(Math.max(10, Math.min(90, dragRef.current.origX + percentDx)) * 10) / 10;
+        const clampedY = Math.round(Math.max(10, Math.min(type === 'greenery' ? 75 : 65, dragRef.current.origY + percentDy)) * 10) / 10;
 
-        onUpdateFlower(flower.id, {
-          position: { x: clampedX, y: clampedY }
-        });
+        if (type === 'flower') {
+          onUpdateFlower(item.id, {
+            position: { x: clampedX, y: clampedY }
+          });
+        } else if (onUpdateGreenery) {
+          onUpdateGreenery(item.id, {
+            position: { x: clampedX, y: clampedY }
+          });
+        }
       }
     };
 
     const onPointerUp = () => {
       if (dragRef.current) {
-        setDraggingFlowerId(null);
+        setDraggingId(null);
+        setDraggingType(null);
         dragRef.current = null;
       }
       window.removeEventListener('pointermove', onPointerMove);
@@ -125,6 +146,7 @@ export default function BouquetCanvas({
       onFlowerClickRecipient(flower);
     } else {
       setSelectedFlowerId(flower.id);
+      if (setSelectedGreeneryId) setSelectedGreeneryId(null);
     }
   };
 
@@ -294,6 +316,7 @@ export default function BouquetCanvas({
   };
 
   const selectedFlower = flowers.find((f) => f.id === selectedFlowerId);
+  const selectedGreenery = (greenery || []).find((g) => g.id === selectedGreeneryId);
 
   return (
     <div
@@ -481,30 +504,74 @@ export default function BouquetCanvas({
         {renderBackWrapper()}
       </div>
 
-      {/* LAYER 2: Foliage Greenery Fillers */}
+      {/* LAYER 2: Moveable Foliage Greenery Fillers */}
       <div
         style={{
           position: 'absolute',
-          left: `${wrapperCenterX}px`,
-          top: `${wrapperRimY}px`,
-          width: 0,
-          height: 0,
-          zIndex: 6,
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          zIndex: 7,
           pointerEvents: 'none'
         }}
       >
-        <div style={{ position: 'absolute', bottom: '15px', right: isMobile ? '28px' : '38px', transform: 'rotate(-26deg)', transformOrigin: 'bottom right' }}>
-          <GreenerySvg type="eucalyptus" height={isMobile ? 120 : 145} color="#3f6212" />
-        </div>
-        <div style={{ position: 'absolute', bottom: '15px', left: isMobile ? '28px' : '38px', transform: 'rotate(26deg)', transformOrigin: 'bottom left' }}>
-          <GreenerySvg type="eucalyptus" height={isMobile ? 120 : 145} color="#3f6212" />
-        </div>
-        <div style={{ position: 'absolute', bottom: '22px', right: '12px', transform: 'rotate(-12deg)', transformOrigin: 'bottom right' }}>
-          <GreenerySvg type="babysbreath" height={isMobile ? 110 : 135} />
-        </div>
-        <div style={{ position: 'absolute', bottom: '22px', left: '12px', transform: 'rotate(14deg)', transformOrigin: 'bottom left' }}>
-          <GreenerySvg type="babysbreath" height={isMobile ? 110 : 135} />
-        </div>
+        {(greenery || []).map((green) => {
+          const isSelected = selectedGreeneryId === green.id;
+          const isDragging = draggingId === green.id && draggingType === 'greenery';
+          const stemHeight = isMobile ? 125 : 150;
+
+          return (
+            <div
+              key={green.id}
+              onPointerDown={(e) => handlePointerDownItem(e, green, 'greenery')}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (mode === 'studio') {
+                  if (setSelectedGreeneryId) setSelectedGreeneryId(green.id);
+                  setSelectedFlowerId(null);
+                }
+              }}
+              style={{
+                position: 'absolute',
+                left: `${green.position.x}%`,
+                top: `${green.position.y}%`,
+                width: '65px',
+                height: `${stemHeight}px`,
+                transform: `translate(-50%, -85%) rotate(${green.rotation || 0}deg) scale(${
+                  isDragging ? (green.scale || 1) * 1.08 : isSelected ? (green.scale || 1) * 1.04 : (green.scale || 1)
+                })`,
+                transformOrigin: '50% 85%',
+                cursor: mode === 'studio' ? (isDragging ? 'grabbing' : 'grab') : 'default',
+                pointerEvents: mode === 'studio' ? 'auto' : 'none',
+                touchAction: 'none',
+                zIndex: isDragging ? 36 : isSelected ? 30 : 7,
+                transition: isDragging ? 'none' : 'transform 0.12s ease, filter 0.15s ease',
+                filter: isDragging
+                  ? 'drop-shadow(0 12px 20px rgba(0,0,0,0.22))'
+                  : isSelected
+                  ? 'drop-shadow(0 0 12px rgba(45,106,79,0.85))'
+                  : 'drop-shadow(0 4px 8px rgba(0,0,0,0.08))'
+              }}
+            >
+              <GreenerySvg type={green.type} color={green.color} height={stemHeight} />
+
+              {/* Selection Border on Greenery */}
+              {mode === 'studio' && isSelected && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: '-4px',
+                    borderRadius: '16px',
+                    border: '2px dashed #2d6a4f',
+                    pointerEvents: 'none',
+                    opacity: 0.9
+                  }}
+                />
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* LAYER 3: Stems SVG Layer */}
@@ -611,7 +678,7 @@ export default function BouquetCanvas({
       >
         {flowers.map((flower) => {
           const isSelected = selectedFlowerId === flower.id;
-          const isDragging = draggingFlowerId === flower.id;
+          const isDragging = draggingId === flower.id && draggingType === 'flower';
           const hasMessage = Boolean(flower.message && flower.message.trim());
           const hasImage = Boolean(flower.mediaImage);
           const hasAudio = Boolean(flower.mediaAudio);
@@ -622,7 +689,7 @@ export default function BouquetCanvas({
           return (
             <div
               key={flower.id}
-              onPointerDown={(e) => handlePointerDown(e, flower)}
+              onPointerDown={(e) => handlePointerDownItem(e, flower, 'flower')}
               onClick={(e) => {
                 e.stopPropagation();
                 handleFlowerClick(flower);
@@ -834,6 +901,73 @@ export default function BouquetCanvas({
             className="sketch-button"
             style={{ padding: '0.3rem 0.55rem', color: '#e11d48' }}
             title="Remove from bouquet"
+          >
+            <Trash2 size={13} />
+          </button>
+        </div>
+      )}
+
+      {/* Selected Greenery Quick Controls Toolbar (Pure Design: Rotate, Scale, Delete) */}
+      {mode === 'studio' && selectedGreenery && !selectedFlower && (
+        <div
+          className="glass-panel"
+          style={{
+            position: 'absolute',
+            bottom: '0.65rem',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: isMobile ? '0.35rem' : '0.5rem',
+            padding: isMobile ? '0.35rem 0.65rem' : '0.45rem 0.9rem',
+            borderRadius: '255px 15px 225px 15px/15px 225px 15px 255px',
+            border: '2px solid var(--border-sketch)',
+            zIndex: 38,
+            boxShadow: 'var(--shadow-sketch)',
+            maxWidth: '96%',
+            overflowX: 'auto'
+          }}
+        >
+          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#2d6a4f', marginRight: '2px', whiteSpace: 'nowrap' }}>
+            🌿 Foliage:
+          </span>
+
+          <button
+            type="button"
+            onClick={() => onUpdateGreenery(selectedGreenery.id, { rotation: ((selectedGreenery.rotation || 0) + 15) % 360 })}
+            className="sketch-button"
+            title="Rotate greenery stem"
+            style={{ padding: '0.3rem 0.6rem', fontSize: '0.76rem' }}
+          >
+            <RotateCw size={13} /> Rotate
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onUpdateGreenery(selectedGreenery.id, { scale: Math.min(1.8, (selectedGreenery.scale || 1) + 0.1) })}
+            className="sketch-button"
+            title="Enlarge greenery"
+            style={{ padding: '0.3rem 0.55rem' }}
+          >
+            <ZoomIn size={13} />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onUpdateGreenery(selectedGreenery.id, { scale: Math.max(0.6, (selectedGreenery.scale || 1) - 0.1) })}
+            className="sketch-button"
+            title="Shrink greenery"
+            style={{ padding: '0.3rem 0.55rem' }}
+          >
+            <ZoomOut size={13} />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onDeleteGreenery(selectedGreenery.id)}
+            className="sketch-button"
+            style={{ padding: '0.3rem 0.55rem', color: '#e11d48' }}
+            title="Remove foliage stem"
           >
             <Trash2 size={13} />
           </button>

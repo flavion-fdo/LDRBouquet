@@ -9,7 +9,8 @@ An interactive, hand-drawn virtual bouquet studio designed specifically for long
 - 🌿 **Real Hand-Drawn Blooms**: Rose, Tulip, Sunflower, Daisy, Lavender, Peony, Lily, Cherry Blossom, Hydrangea, and Bluebell.
 - 🖐️ **Interactive Drag-and-Drop Placement**: Grab any flower head and move it freely around the canvas; realistic organic stems flex, curve, and follow dynamically in real time.
 - 🏺 **Stems Gathered Inside the Bouquet**: Front and back paper layering ensures all stems tuck neatly inside the wrapper cone or stand submerged inside the crystal water of the glass vase.
-- 📱 **Full Multi-Device Responsiveness**: Tailored layouts for smartphones, tablets, and desktops with an intuitive mobile studio switcher (`🌸 Bouquet`, `💐 Pick Blooms`, `🎀 Wrap & Tag`) and touch-drag support.
+- 🌿 **Moveable Botanical Greenery & Foliage**: Select and arrange pure design greenery stems (Eucalyptus, Baby's Breath, Forest Fern, Olive Branch, Italian Ruscus). Drag, rotate, and scale them freely to frame your bouquet without affecting love notes.
+- 📱 **Full Multi-Device Responsiveness & Hamburger Menu**: Tailored layouts for smartphones, tablets, and desktops with a mobile hamburger menu drawer, responsive studio switcher tabs (`🌸 Bouquet`, `💐 Pick Flora`, `🎀 Wrap & Tag`), and touch-drag support.
 - 💌 **Hidden Secret Notes & Media Memories**: Write personalized letters or attach rich media to each flower:
   - 📸 **Photo Memories**: Upload photos from device or paste web URLs; rendered as vintage Polaroid snapshots with full-screen zoom.
   - 🎙️ **In-Browser Voice Notes & Audio**: Record voice notes directly with your microphone using `MediaRecorder`, upload MP3/WAV files, or stream audio with an interactive vintage cassette player.

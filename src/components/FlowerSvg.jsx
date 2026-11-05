@@ -286,32 +286,139 @@ export default function FlowerSvg({ type, color = '#e11d48', size = 120, classNa
   );
 }
 
+export const GREENERY_TYPES = [
+  { id: 'eucalyptus', name: 'Eucalyptus', defaultColor: '#3f6212', desc: 'Silvery-green rounded leaves on arching stem' },
+  { id: 'babysbreath', name: "Baby's Breath", defaultColor: '#65a30d', desc: 'Cloud of delicate tiny white blossom puffs' },
+  { id: 'fern', name: 'Forest Fern', defaultColor: '#2d6a4f', desc: 'Lush feathered woodland fronds' },
+  { id: 'olive', name: 'Olive Branch', defaultColor: '#4f772d', desc: 'Slender peaceful silver-green leaves' },
+  { id: 'ruscus', name: 'Italian Ruscus', defaultColor: '#1b4332', desc: 'Glossy tapered deep garden foliage' }
+];
+
 /**
  * Stem & Filler Greenery Component
  */
-export function GreenerySvg({ type = 'eucalyptus', color = '#4d7c0f', height = 150 }) {
+export function GreenerySvg({ type = 'eucalyptus', color = '#4d7c0f', height = 150, className = '' }) {
   const strokeColor = 'var(--border-sketch)';
 
   if (type === 'babysbreath') {
     return (
-      <svg width="60" height={height} viewBox="0 0 60 150" className="hand-drawn-svg">
-        <path d="M 30 150 Q 28 80 30 10" fill="none" stroke="#65a30d" strokeWidth="2" />
-        <path d="M 30 100 Q 15 80 10 70" fill="none" stroke="#65a30d" strokeWidth="1.5" />
-        <path d="M 30 80 Q 45 60 50 50" fill="none" stroke="#65a30d" strokeWidth="1.5" />
-        <path d="M 30 50 Q 20 30 15 20" fill="none" stroke="#65a30d" strokeWidth="1.5" />
+      <svg width="60" height={height} viewBox="0 0 60 150" className={`hand-drawn-svg ${className}`}>
+        <path d="M 30 150 Q 28 80 30 10" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" />
+        <path d="M 30 110 Q 18 90 12 75" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" />
+        <path d="M 30 85 Q 42 68 48 52" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" />
+        <path d="M 30 55 Q 20 38 15 25" fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" />
+        <path d="M 30 35 Q 38 22 42 12" fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" />
         
         {/* Tiny White Puffs */}
-        {[{x: 10, y: 70}, {x: 50, y: 50}, {x: 15, y: 20}, {x: 30, y: 10}, {x: 22, y: 40}, {x: 40, y: 30}].map((pt, i) => (
-          <circle key={i} cx={pt.x} cy={pt.y} r="5" fill="#ffffff" stroke={strokeColor} strokeWidth="1.2" />
+        {[
+          {x: 12, y: 75}, {x: 6, y: 70}, {x: 48, y: 52}, {x: 54, y: 46},
+          {x: 15, y: 25}, {x: 8, y: 22}, {x: 30, y: 8}, {x: 42, y: 12},
+          {x: 24, y: 45}, {x: 36, y: 35}
+        ].map((pt, i) => (
+          <circle key={i} cx={pt.x} cy={pt.y} r={i % 3 === 0 ? 5.5 : 4} fill="#ffffff" stroke={strokeColor} strokeWidth="1.2" />
         ))}
       </svg>
     );
   }
 
-  // Default Eucalyptus / Fern Leaves
+  if (type === 'fern') {
+    return (
+      <svg width="65" height={height} viewBox="0 0 65 150" className={`hand-drawn-svg ${className}`}>
+        <path d="M 32 150 Q 30 75 32 5" fill="none" stroke={color} strokeWidth="2.8" strokeLinecap="round" />
+        {[
+          { y: 130, len: 18 },
+          { y: 110, len: 22 },
+          { y: 90, len: 24 },
+          { y: 70, len: 22 },
+          { y: 50, len: 19 },
+          { y: 32, len: 15 },
+          { y: 16, len: 10 }
+        ].map((frond, i) => (
+          <g key={i}>
+            {/* Left frond */}
+            <path
+              d={`M 32 ${frond.y} Q ${32 - frond.len * 0.6} ${frond.y - 8} ${32 - frond.len} ${frond.y - 4} Q ${32 - frond.len * 0.5} ${frond.y + 2} 32 ${frond.y}`}
+              fill={color}
+              stroke={strokeColor}
+              strokeWidth="1.4"
+            />
+            {/* Right frond */}
+            <path
+              d={`M 32 ${frond.y} Q ${32 + frond.len * 0.6} ${frond.y - 8} ${32 + frond.len} ${frond.y - 4} Q ${32 + frond.len * 0.5} ${frond.y + 2} 32 ${frond.y}`}
+              fill={color}
+              stroke={strokeColor}
+              strokeWidth="1.4"
+            />
+          </g>
+        ))}
+      </svg>
+    );
+  }
+
+  if (type === 'olive') {
+    return (
+      <svg width="60" height={height} viewBox="0 0 60 150" className={`hand-drawn-svg ${className}`}>
+        <path d="M 30 150 Q 31 80 28 8" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" />
+        {[
+          { y: 125, left: true, rx: 17, ry: 7, rot: -30 },
+          { y: 102, left: false, rx: 19, ry: 7.5, rot: 30 },
+          { y: 78, left: true, rx: 19, ry: 7.5, rot: -32 },
+          { y: 54, left: false, rx: 17, ry: 7, rot: 32 },
+          { y: 32, left: true, rx: 15, ry: 6, rot: -28 },
+          { y: 12, left: false, rx: 12, ry: 5, rot: 25 }
+        ].map((leaf, i) => (
+          <g key={i}>
+            <ellipse
+              cx={leaf.left ? 17 : 43}
+              cy={leaf.y}
+              rx={leaf.rx}
+              ry={leaf.ry}
+              fill={color}
+              stroke={strokeColor}
+              strokeWidth="1.6"
+              transform={`rotate(${leaf.rot} ${leaf.left ? 17 : 43} ${leaf.y})`}
+            />
+            {/* Tiny Olive Fruit on a couple nodes */}
+            {i === 2 && <circle cx="28" cy="80" r="4" fill="#334155" stroke={strokeColor} strokeWidth="1" />}
+            {i === 3 && <circle cx="34" cy="56" r="4" fill="#1e293b" stroke={strokeColor} strokeWidth="1" />}
+          </g>
+        ))}
+      </svg>
+    );
+  }
+
+  if (type === 'ruscus') {
+    return (
+      <svg width="60" height={height} viewBox="0 0 60 150" className={`hand-drawn-svg ${className}`}>
+        <path d="M 30 150 Q 26 80 30 5" fill="none" stroke={color} strokeWidth="2.6" strokeLinecap="round" />
+        {[
+          { y: 128, left: true },
+          { y: 104, left: false },
+          { y: 80, left: true },
+          { y: 56, left: false },
+          { y: 34, left: true },
+          { y: 15, left: false }
+        ].map((leaf, i) => (
+          <path
+            key={i}
+            d={
+              leaf.left
+                ? `M 30 ${leaf.y} C 14 ${leaf.y - 12}, 10 ${leaf.y + 4}, 30 ${leaf.y + 6} Z`
+                : `M 30 ${leaf.y} C 46 ${leaf.y - 12}, 50 ${leaf.y + 4}, 30 ${leaf.y + 6} Z`
+            }
+            fill={color}
+            stroke={strokeColor}
+            strokeWidth="1.6"
+          />
+        ))}
+      </svg>
+    );
+  }
+
+  // Default Eucalyptus
   return (
-    <svg width="70" height={height} viewBox="0 0 70 150" className="hand-drawn-svg">
-      <path d="M 35 150 Q 34 75 35 5" fill="none" stroke={color} strokeWidth="3" />
+    <svg width="70" height={height} viewBox="0 0 70 150" className={`hand-drawn-svg ${className}`}>
+      <path d="M 35 150 Q 34 75 35 5" fill="none" stroke={color} strokeWidth="3" strokeLinecap="round" />
       {[
         { y: 130, left: true, r: 16 },
         { y: 105, left: false, r: 18 },

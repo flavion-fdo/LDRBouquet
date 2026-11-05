@@ -18,6 +18,12 @@ export const PRESET_BOUQUETS = [
       { id: 'f-4', type: 'cherry', color: '#fbcfe8', scale: 0.95, rotation: 18, position: { x: 30, y: 55 }, message: 'Here is a little petal kiss sent across the oceans. 🌸', cardTheme: 'pressed' },
       { id: 'f-5', type: 'hydrangea', color: '#a78bfa', scale: 1.05, rotation: -5, position: { x: 70, y: 58 }, message: 'Thank you for making every time zone feel easy with your love.', cardTheme: 'parchment' },
       { id: 'f-6', type: 'daisy', color: '#fef08a', scale: 0.9, rotation: 12, position: { x: 48, y: 62 }, message: 'Never forget how deeply and constantly you are loved! 😊', cardTheme: 'gold' }
+    ],
+    greenery: [
+      { id: 'g-1', type: 'eucalyptus', color: '#3f6212', scale: 1.05, rotation: -26, position: { x: 34, y: 55 } },
+      { id: 'g-2', type: 'eucalyptus', color: '#3f6212', scale: 1.05, rotation: 26, position: { x: 66, y: 55 } },
+      { id: 'g-3', type: 'babysbreath', color: '#65a30d', scale: 1.0, rotation: -14, position: { x: 42, y: 52 } },
+      { id: 'g-4', type: 'babysbreath', color: '#65a30d', scale: 1.0, rotation: 16, position: { x: 58, y: 52 } }
     ]
   },
   {
@@ -36,6 +42,11 @@ export const PRESET_BOUQUETS = [
       { id: 'fg-3', type: 'wildflower', color: '#3b82f6', scale: 0.95, rotation: 16, position: { x: 65, y: 48 }, message: 'Everlasting love across every single continent and ocean. 💙', cardTheme: 'pressed' },
       { id: 'fg-4', type: 'lavender', color: '#8b5cf6', scale: 1.05, rotation: -8, position: { x: 28, y: 60 }, message: 'Sending sweet calm and peace until I can hold your hand again. 🌿', cardTheme: 'parchment' },
       { id: 'fg-5', type: 'lily', color: '#fde047', scale: 1.1, rotation: 10, position: { x: 72, y: 62 }, message: 'Cheering for you and missing you endlessly from miles away.', cardTheme: 'gold' }
+    ],
+    greenery: [
+      { id: 'gt-1', type: 'fern', color: '#2d6a4f', scale: 1.05, rotation: -28, position: { x: 32, y: 54 } },
+      { id: 'gt-2', type: 'olive', color: '#4f772d', scale: 1.0, rotation: 24, position: { x: 68, y: 54 } },
+      { id: 'gt-3', type: 'babysbreath', color: '#65a30d', scale: 0.95, rotation: 4, position: { x: 50, y: 50 } }
     ]
   },
   {
@@ -53,6 +64,11 @@ export const PRESET_BOUQUETS = [
       { id: 'fm-2', type: 'lavender', color: '#a78bfa', scale: 1.05, rotation: 14, position: { x: 36, y: 45 }, message: 'Sweet dreams across the miles. Meet me in our dreams tonight. 🌌', cardTheme: 'night' },
       { id: 'fm-3', type: 'rose', color: '#f43f5e', scale: 1.1, rotation: -18, position: { x: 64, y: 48 }, message: 'Every single mile between us is going to make our reunion sweeter.', cardTheme: 'pressed' },
       { id: 'fm-4', type: 'hydrangea', color: '#38bdf8', scale: 1.0, rotation: 9, position: { x: 44, y: 60 }, message: 'Sending you boundless comfort and warmth through these petals.', cardTheme: 'parchment' }
+    ],
+    greenery: [
+      { id: 'gm-1', type: 'ruscus', color: '#1b4332', scale: 1.05, rotation: -22, position: { x: 32, y: 54 } },
+      { id: 'gm-2', type: 'ruscus', color: '#1b4332', scale: 1.05, rotation: 22, position: { x: 68, y: 54 } },
+      { id: 'gm-3', type: 'eucalyptus', color: '#2d6a4f', scale: 0.95, rotation: -8, position: { x: 52, y: 52 } }
     ]
   }
 ];
@@ -84,7 +100,16 @@ export function encodeBouquetToHash(bouquet) {
         if (flower.mediaAudio) item.aud = flower.mediaAudio;
         if (flower.mediaVideo) item.vid = flower.mediaVideo;
         return item;
-      })
+      }),
+      g: (bouquet.greenery || []).map(green => ({
+        id: green.id,
+        t: green.type,
+        c: green.color,
+        s: green.scale,
+        r: green.rotation,
+        x: Math.round(green.position.x),
+        y: Math.round(green.position.y)
+      }))
     };
 
     const jsonStr = JSON.stringify(compactData);
@@ -125,6 +150,14 @@ export function decodeHashToBouquet(hashString) {
         mediaImage: flower.img || '',
         mediaAudio: flower.aud || '',
         mediaVideo: flower.vid || ''
+      })),
+      greenery: (compact.g || []).map(green => ({
+        id: green.id,
+        type: green.t,
+        color: green.c,
+        scale: green.s || 1,
+        rotation: green.r || 0,
+        position: { x: green.x || 50, y: green.y || 55 }
       }))
     };
   } catch (err) {

@@ -383,8 +383,20 @@ body::before {
   }
 }
 
+/* Navbar Mobile Hamburger Adaptations */
+.navbar-mobile-toggle {
+  display: none;
+}
+
 /* Small Screens & Mobile (<= 768px) */
 @media (max-width: 768px) {
+  .navbar-desktop-controls {
+    display: none !important;
+  }
+  .navbar-mobile-toggle {
+    display: flex !important;
+  }
+
   .navbar-container {
     margin: 0.5rem 0.75rem 0.75rem 0.75rem !important;
     padding: 0.75rem 1rem !important;

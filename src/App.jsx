@@ -17,6 +17,7 @@ export default function App() {
   const [mobileTab, setMobileTab] = useState('canvas'); // 'canvas' | 'flowers' | 'wrapper'
   const [bouquet, setBouquet] = useState(PRESET_BOUQUETS[0]);
   const [selectedFlowerId, setSelectedFlowerId] = useState(null);
+  const [selectedGreeneryId, setSelectedGreeneryId] = useState(null);
   const [editingFlower, setEditingFlower] = useState(null);
   const [recipientPopupFlower, setRecipientPopupFlower] = useState(null);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -115,14 +116,59 @@ export default function App() {
     if (selectedFlowerId === id) setSelectedFlowerId(null);
   };
 
+  // Greenery Add / Edit / Remove Handlers (Pure botanical design)
+  const handleAddGreenery = (greeneryData) => {
+    const newId = `g-${Date.now()}`;
+    const count = (bouquet.greenery || []).length;
+    const isLeftSide = count % 2 === 0;
+    const spreadX = isLeftSide ? 34 - (count % 3) * 5 : 66 + (count % 3) * 5;
+    const spreadY = 52 + Math.floor(count / 2) * 4;
+
+    const newGreenery = {
+      id: newId,
+      type: greeneryData.type,
+      color: greeneryData.color,
+      scale: 1,
+      rotation: isLeftSide ? -24 - (count % 3) * 6 : 24 + (count % 3) * 6,
+      position: {
+        x: Math.max(16, Math.min(84, spreadX)),
+        y: Math.max(38, Math.min(68, spreadY))
+      }
+    };
+
+    setBouquet((prev) => ({
+      ...prev,
+      greenery: [...(prev.greenery || []), newGreenery]
+    }));
+    setSelectedGreeneryId(newId);
+    setSelectedFlowerId(null);
+    setMobileTab('canvas');
+  };
+
+  const handleUpdateGreenery = (id, updates) => {
+    setBouquet((prev) => ({
+      ...prev,
+      greenery: (prev.greenery || []).map((g) => (g.id === id ? { ...g, ...updates } : g))
+    }));
+  };
+
+  const handleDeleteGreenery = (id) => {
+    setBouquet((prev) => ({
+      ...prev,
+      greenery: (prev.greenery || []).filter((g) => g.id !== id)
+    }));
+    if (selectedGreeneryId === id) setSelectedGreeneryId(null);
+  };
+
   const handleUpdateBouquet = (updates) => {
     setBouquet((prev) => ({ ...prev, ...updates }));
   };
 
   const handleClearBouquet = () => {
-    if (window.confirm('Are you sure you want to clear all flowers from the bouquet?')) {
-      setBouquet((prev) => ({ ...prev, flowers: [] }));
+    if (window.confirm('Are you sure you want to clear all flowers and greenery from the bouquet?')) {
+      setBouquet((prev) => ({ ...prev, flowers: [], greenery: [] }));
       setSelectedFlowerId(null);
+      setSelectedGreeneryId(null);
     }
   };
 
@@ -132,6 +178,7 @@ export default function App() {
     setBouquet(preset);
     if (preset.theme) setTheme(preset.theme);
     setSelectedFlowerId(null);
+    setSelectedGreeneryId(null);
     setMobileTab('canvas');
   };
 
@@ -202,14 +249,14 @@ export default function App() {
                 className={`mobile-studio-tab-btn ${mobileTab === 'canvas' ? 'active' : ''}`}
                 onClick={() => setMobileTab('canvas')}
               >
-                <Sparkles size={15} /> <span>Bouquet ({bouquet.flowers.length})</span>
+                <Sparkles size={15} /> <span>Bouquet ({bouquet.flowers.length + (bouquet.greenery || []).length})</span>
               </button>
               <button
                 type="button"
                 className={`mobile-studio-tab-btn ${mobileTab === 'flowers' ? 'active' : ''}`}
                 onClick={() => setMobileTab('flowers')}
               >
-                <Flower2 size={15} /> <span>Pick Blooms</span>
+                <Flower2 size={15} /> <span>Pick Flora</span>
               </button>
               <button
                 type="button"
@@ -222,9 +269,9 @@ export default function App() {
 
             {/* Studio Workspace Layout */}
             <div className="app-grid">
-              {/* Column 1: Flower Catalog */}
+              {/* Column 1: Flower & Greenery Catalog */}
               <div className={`mobile-tab-content ${mobileTab === 'flowers' ? 'active' : ''}`}>
-                <FlowerCatalog onAddFlower={handleAddFlower} />
+                <FlowerCatalog onAddFlower={handleAddFlower} onAddGreenery={handleAddGreenery} />
               </div>
 
               {/* Column 2: Bouquet Canvas Workspace */}
@@ -234,8 +281,12 @@ export default function App() {
                   mode={mode}
                   selectedFlowerId={selectedFlowerId}
                   setSelectedFlowerId={setSelectedFlowerId}
+                  selectedGreeneryId={selectedGreeneryId}
+                  setSelectedGreeneryId={setSelectedGreeneryId}
                   onUpdateFlower={handleUpdateFlower}
                   onDeleteFlower={handleDeleteFlower}
+                  onUpdateGreenery={handleUpdateGreenery}
+                  onDeleteGreenery={handleDeleteGreenery}
                   onOpenMessageModal={(flower) => setEditingFlower(flower)}
                   onFlowerClickRecipient={handleFlowerClickRecipient}
                   onOpenShare={() => setIsShareModalOpen(true)}
@@ -257,7 +308,7 @@ export default function App() {
                 className="sketch-button sketch-button-primary"
                 style={{ flex: 1, fontSize: '0.85rem', padding: '0.6rem 0.75rem' }}
               >
-                <Plus size={16} /> Add Bloom
+                <Plus size={16} /> Add Stems
               </button>
               <button
                 type="button"
@@ -295,8 +346,12 @@ export default function App() {
               mode={mode}
               selectedFlowerId={selectedFlowerId}
               setSelectedFlowerId={setSelectedFlowerId}
+              selectedGreeneryId={selectedGreeneryId}
+              setSelectedGreeneryId={setSelectedGreeneryId}
               onUpdateFlower={handleUpdateFlower}
               onDeleteFlower={handleDeleteFlower}
+              onUpdateGreenery={handleUpdateGreenery}
+              onDeleteGreenery={handleDeleteGreenery}
               onOpenMessageModal={(flower) => setEditingFlower(flower)}
               onFlowerClickRecipient={handleFlowerClickRecipient}
               onOpenDedicationModal={() => setIsDedicationModalOpen(true)}
