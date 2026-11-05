@@ -68,17 +68,23 @@ export function encodeBouquetToHash(bouquet) {
       dis: bouquet.tagDistance || '',
       tm: bouquet.tagMessage || '',
       th: bouquet.theme || 'parchment',
-      f: (bouquet.flowers || []).map(flower => ({
-        id: flower.id,
-        t: flower.type,
-        c: flower.color,
-        s: flower.scale,
-        r: flower.rotation,
-        x: Math.round(flower.position.x),
-        y: Math.round(flower.position.y),
-        m: flower.message || '',
-        ct: flower.cardTheme || 'parchment'
-      }))
+      f: (bouquet.flowers || []).map(flower => {
+        const item = {
+          id: flower.id,
+          t: flower.type,
+          c: flower.color,
+          s: flower.scale,
+          r: flower.rotation,
+          x: Math.round(flower.position.x),
+          y: Math.round(flower.position.y),
+          m: flower.message || '',
+          ct: flower.cardTheme || 'parchment'
+        };
+        if (flower.mediaImage) item.img = flower.mediaImage;
+        if (flower.mediaAudio) item.aud = flower.mediaAudio;
+        if (flower.mediaVideo) item.vid = flower.mediaVideo;
+        return item;
+      })
     };
 
     const jsonStr = JSON.stringify(compactData);
@@ -115,7 +121,10 @@ export function decodeHashToBouquet(hashString) {
         rotation: flower.r || 0,
         position: { x: flower.x || 50, y: flower.y || 50 },
         message: flower.m || '',
-        cardTheme: flower.ct || 'parchment'
+        cardTheme: flower.ct || 'parchment',
+        mediaImage: flower.img || '',
+        mediaAudio: flower.aud || '',
+        mediaVideo: flower.vid || ''
       }))
     };
   } catch (err) {

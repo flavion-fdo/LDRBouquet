@@ -10,7 +10,11 @@ An interactive, hand-drawn virtual bouquet studio designed specifically for long
 - 🖐️ **Interactive Drag-and-Drop Placement**: Grab any flower head and move it freely around the canvas; realistic organic stems flex, curve, and follow dynamically in real time.
 - 🏺 **Stems Gathered Inside the Bouquet**: Front and back paper layering ensures all stems tuck neatly inside the wrapper cone or stand submerged inside the crystal water of the glass vase.
 - 📱 **Full Multi-Device Responsiveness**: Tailored layouts for smartphones, tablets, and desktops with an intuitive mobile studio switcher (`🌸 Bouquet`, `💐 Pick Blooms`, `🎀 Wrap & Tag`) and touch-drag support.
-- 💌 **Hidden Secret Notes**: Write personalized notes for each flower. Each note reveals itself with a typewriter animation when your partner clicks the blossom.
+- 💌 **Hidden Secret Notes & Media Memories**: Write personalized letters or attach rich media to each flower:
+  - 📸 **Photo Memories**: Upload photos from device or paste web URLs; rendered as vintage Polaroid snapshots with full-screen zoom.
+  - 🎙️ **In-Browser Voice Notes & Audio**: Record voice notes directly with your microphone using `MediaRecorder`, upload MP3/WAV files, or stream audio with an interactive vintage cassette player.
+  - 🎬 **Video Clips & YouTube**: Upload short clips or embed YouTube and Vimeo videos directly inside blooms.
+  - 🏷️ **Dynamic Bloom Badges**: Canvas indicators highlight which flowers contain letters, photos, voice notes, or videos.
 - ✈️ **Custom Airmail Dedication Tags**: Specify *To*, *From*, *Miles Apart / Distance*, and dedication messages with a direct click-to-edit modal on the canvas.
 - 🎨 **Packaging & Ribbon Customization**: Airmail Kraft Cone, Romantic Satin Silk, Vintage Love Letters, Glass Crystal Vase, and Starlit Midnight.
 - 🔗 **Interactive Sharing**: Encodes the entire bouquet state and secret notes into a shareable URL hash.

@@ -22,7 +22,7 @@ export default function App() {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isDedicationModalOpen, setIsDedicationModalOpen] = useState(false);
 
-  // Check URL Hash on Load for Share Links
+  // Check URL Hash on Load for Share Links, or load saved bouquet from localStorage
   useEffect(() => {
     const hash = window.location.hash;
     if (hash && hash.length > 5) {
@@ -31,9 +31,34 @@ export default function App() {
         setBouquet(sharedBouquet);
         setMode('preview'); // Recipient direct presentation mode
         if (sharedBouquet.theme) setTheme(sharedBouquet.theme);
+        return;
       }
     }
+
+    try {
+      const saved = localStorage.getItem('petal_and_quill_bouquet');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && Array.isArray(parsed.flowers)) {
+          setBouquet(parsed);
+          if (parsed.theme) setTheme(parsed.theme);
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to load local saved bouquet:', e);
+    }
   }, []);
+
+  // Save Bouquet to LocalStorage to protect photos & audio from accidental loss
+  useEffect(() => {
+    if (bouquet && bouquet.flowers) {
+      try {
+        localStorage.setItem('petal_and_quill_bouquet', JSON.stringify(bouquet));
+      } catch (e) {
+        console.warn('LocalStorage save warning:', e);
+      }
+    }
+  }, [bouquet]);
 
   // Update Theme in DOM body
   useEffect(() => {
@@ -59,7 +84,10 @@ export default function App() {
         y: Math.max(25, Math.min(65, spreadY))
       },
       message: flowerData.message || '',
-      cardTheme: flowerData.cardTheme || 'parchment'
+      cardTheme: flowerData.cardTheme || 'parchment',
+      mediaImage: flowerData.mediaImage || '',
+      mediaAudio: flowerData.mediaAudio || '',
+      mediaVideo: flowerData.mediaVideo || ''
     };
 
     setBouquet((prev) => ({

@@ -10,7 +10,7 @@ export default function ShareModal({ bouquet, onClose, onUpdateBouquet }) {
   const hash = encodeBouquetToHash(bouquet);
   const shareUrl = `${window.location.origin}${window.location.pathname}#${hash}`;
 
-  const notesCount = (bouquet.flowers || []).filter((f) => f.message && f.message.trim()).length;
+  const notesCount = (bouquet.flowers || []).filter((f) => (f.message && f.message.trim()) || f.mediaImage || f.mediaAudio || f.mediaVideo).length;
   const totalCount = (bouquet.flowers || []).length;
 
   const romanticMessage = `I handcrafted a virtual flower bouquet with secret love notes hidden inside just for you across the miles! 🌸\n\nOpen each flower to unveil my secret notes:\n${shareUrl}`;

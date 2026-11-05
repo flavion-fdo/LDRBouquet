@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import FlowerSvg, { GreenerySvg } from './FlowerSvg';
-import { Trash2, Edit3, RotateCw, ZoomIn, ZoomOut, Sparkles, MessageCircle, Tag, Share2, Plane, Move } from 'lucide-react';
+import { Trash2, Edit3, RotateCw, ZoomIn, ZoomOut, Sparkles, MessageCircle, Tag, Share2, Plane, Move, Camera, Mic, Film } from 'lucide-react';
 
 export default function BouquetCanvas({
   bouquet,
@@ -63,7 +63,7 @@ export default function BouquetCanvas({
   const stemGatherY = wrapperTop + (isMobile ? 90 : 105);
   const wrapperRimY = wrapperTop + (isMobile ? 12 : 15);
 
-  const flowersWithNotes = flowers.filter((f) => f.message && f.message.trim()).length;
+  const flowersWithNotes = flowers.filter((f) => (f.message && f.message.trim()) || f.mediaImage || f.mediaAudio || f.mediaVideo).length;
 
   // Drag-and-drop pointer handling with touch support
   const handlePointerDown = (e, flower) => {
@@ -611,6 +611,10 @@ export default function BouquetCanvas({
           const isSelected = selectedFlowerId === flower.id;
           const isDragging = draggingFlowerId === flower.id;
           const hasMessage = Boolean(flower.message && flower.message.trim());
+          const hasImage = Boolean(flower.mediaImage);
+          const hasAudio = Boolean(flower.mediaAudio);
+          const hasVideo = Boolean(flower.mediaVideo);
+          const hasAnyAttachment = hasMessage || hasImage || hasAudio || hasVideo;
           const bloomSize = isMobile ? 95 : 110;
 
           return (
@@ -656,14 +660,37 @@ export default function BouquetCanvas({
                 />
               )}
 
-              {/* Message Indicator Badge */}
-              {hasMessage && (
+              {/* Message & Media Indicator Badge */}
+              {hasAnyAttachment && (
                 <div
                   className={mode === 'preview' ? 'animate-pulse-note note-badge' : 'note-badge'}
-                  title="Has secret note!"
-                  style={{ width: isMobile ? '22px' : '26px', height: isMobile ? '22px' : '26px' }}
+                  title={
+                    hasImage || hasAudio || hasVideo
+                      ? 'Has attached photo, audio, or video note!'
+                      : 'Has secret love letter!'
+                  }
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '2px',
+                    padding: hasImage || hasAudio || hasVideo ? '2px 5px' : '0',
+                    width: hasImage || hasAudio || hasVideo ? 'auto' : isMobile ? '22px' : '26px',
+                    height: isMobile ? '22px' : '26px',
+                    borderRadius: '14px'
+                  }}
                 >
-                  <MessageCircle size={isMobile ? 12 : 14} />
+                  {hasAudio ? (
+                    <Mic size={isMobile ? 11 : 13} />
+                  ) : hasImage ? (
+                    <Camera size={isMobile ? 11 : 13} />
+                  ) : hasVideo ? (
+                    <Film size={isMobile ? 11 : 13} />
+                  ) : (
+                    <MessageCircle size={isMobile ? 11 : 13} />
+                  )}
+                  {(hasImage && hasAudio) || (hasImage && hasVideo) || (hasAudio && hasVideo) ? (
+                    <span style={{ fontSize: '0.62rem', fontWeight: 800 }}>+</span>
+                  ) : null}
                 </div>
               )}
             </div>
@@ -761,7 +788,7 @@ export default function BouquetCanvas({
             className="sketch-button sketch-button-primary"
             style={{ padding: '0.3rem 0.65rem', fontSize: '0.76rem', whiteSpace: 'nowrap' }}
           >
-            <Edit3 size={13} /> Note
+            <Edit3 size={13} /> Note & Media
           </button>
 
           <button
