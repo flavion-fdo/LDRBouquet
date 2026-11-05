@@ -449,7 +449,7 @@ export default function BouquetCanvas({
             )}
           </div>
           <div style={{ fontSize: '0.76rem', color: 'var(--primary)', marginTop: '2px', fontStyle: 'italic', fontWeight: 600 }}>
-            ✨ Tap any blossom to uncover its secret love note!
+            ✨ Tap any blossom to uncover its secret note!
           </div>
         </div>
       )}
@@ -737,7 +737,7 @@ export default function BouquetCanvas({
                   title={
                     hasImage || hasAudio || hasVideo
                       ? 'Has attached photo, audio, or video note!'
-                      : 'Has secret love letter!'
+                      : 'Has secret note!'
                   }
                   style={{
                     position: 'absolute',

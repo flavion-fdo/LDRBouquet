@@ -13,7 +13,7 @@ export default function ShareModal({ bouquet, onClose, onUpdateBouquet }) {
   const notesCount = (bouquet.flowers || []).filter((f) => (f.message && f.message.trim()) || f.mediaImage || f.mediaAudio || f.mediaVideo).length;
   const totalCount = (bouquet.flowers || []).length;
 
-  const romanticMessage = `I handcrafted a virtual flower bouquet with secret love notes hidden inside just for you across the miles! 🌸\n\nOpen each flower to unveil my secret notes:\n${shareUrl}`;
+  const romanticMessage = `I handcrafted a virtual flower bouquet with secret notes hidden inside just for you across the miles! 🌸\n\nOpen each flower to unveil my secret notes:\n${shareUrl}`;
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(shareUrl);
@@ -33,12 +33,12 @@ export default function ShareModal({ bouquet, onClose, onUpdateBouquet }) {
   };
 
   const shareViaTelegram = () => {
-    const url = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent('I made a virtual flower bouquet with secret love notes for you across the miles! 💌')}`;
+    const url = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent('I made a virtual flower bouquet with secret notes for you across the miles! 💌')}`;
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   const shareViaEmail = () => {
-    const subject = encodeURIComponent('A Handcrafted Bouquet With Secret Love Notes 💐');
+    const subject = encodeURIComponent('A Handcrafted Bouquet With Secret Notes 💐');
     const body = encodeURIComponent(`My love,\n\nI handcrafted a special bouquet of virtual flowers for you across the miles. Each flower contains a hidden secret note written just for you.\n\nOpen each blossom here to read them:\n${shareUrl}\n\nWith all my love`);
     window.location.href = `mailto:?subject=${subject}&body=${body}`;
   };
@@ -345,7 +345,7 @@ export default function ShareModal({ bouquet, onClose, onUpdateBouquet }) {
           </div>
           <ul style={{ paddingLeft: '1.2rem' }}>
             <li>When opening the link, they immediately enter the romantic airmail presentation view.</li>
-            <li>Each bloom sways gently with a hidden love note attached.</li>
+            <li>Each bloom sways gently with a hidden secret note attached.</li>
             <li>Clicking each flower reveals your handwritten secret note with smooth typewriter text!</li>
             <li>After reading, they can celebrate and even send a return bouquet right back to you!</li>
           </ul>

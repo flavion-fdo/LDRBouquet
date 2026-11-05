@@ -280,7 +280,7 @@ export default function MessageEditorModal({ flower, onClose, onSave }) {
               Secret Note for {flowerInfo.name}
             </h2>
             <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: '2px' }}>
-              Add a hidden love letter, photo, voice note, or video for this bloom.
+              Add a hidden note, photo, voice note, or video for this bloom.
             </p>
           </div>
         </div>
@@ -465,7 +465,7 @@ export default function MessageEditorModal({ flower, onClose, onSave }) {
             <div style={{ position: 'relative', marginBottom: '1rem' }}>
               <textarea
                 rows={5}
-                placeholder="Write your secret love note to bridge the miles..."
+                placeholder="Write your secret note to bridge the miles..."
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 className="font-handwriting"
