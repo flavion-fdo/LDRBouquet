@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Copy, Check, Share2, Heart, Gift, MessageCircle, Send, Mail, Plane, Sparkles, Edit3, Link2, RefreshCw } from 'lucide-react';
+import { X, Copy, Check, Share2, Heart, Gift, MessageCircle, Send, Mail, Plane, Sparkles, Edit3, Link2, RefreshCw, ExternalLink } from 'lucide-react';
 import { encodeBouquetToHash } from '../utils/bouquetEncoder';
 import { shortenUrl } from '../utils/urlShortener';
 
@@ -11,9 +11,12 @@ export default function ShareModal({ bouquet, onClose, onUpdateBouquet }) {
   const hash = encodeBouquetToHash(bouquet);
   const directUrl = `${window.location.origin}${window.location.pathname}#${hash}`;
 
+  const isLocal = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
   const [shortUrlData, setShortUrlData] = useState(null);
-  const [isShortening, setIsShortening] = useState(true);
-  const [activeTab, setActiveTab] = useState('short'); // 'short' | 'direct'
+  const [isShortening, setIsShortening] = useState(false);
+  // Default to direct so link is immediately copyable with ZERO wait or blocking
+  const [activeTab, setActiveTab] = useState('direct');
 
   useEffect(() => {
     let isMounted = true;
@@ -22,24 +25,26 @@ export default function ShareModal({ bouquet, onClose, onUpdateBouquet }) {
     shortenUrl(directUrl)
       .then((res) => {
         if (!isMounted) return;
+        setIsShortening(false);
         if (res && res.shortUrl) {
           setShortUrlData(res);
-          setActiveTab('short');
-        } else {
-          setActiveTab('direct');
+          // Only switch to short if public link is active
+          if (!res.pagesNotDeployed && !isLocal) {
+            setActiveTab('short');
+          }
+        } else if (res) {
+          setShortUrlData(res);
         }
-        setIsShortening(false);
       })
       .catch(() => {
         if (!isMounted) return;
-        setActiveTab('direct');
         setIsShortening(false);
       });
 
     return () => {
       isMounted = false;
     };
-  }, [directUrl]);
+  }, [directUrl, isLocal]);
 
   const handleManualShorten = async () => {
     setIsShortening(true);
@@ -47,6 +52,8 @@ export default function ShareModal({ bouquet, onClose, onUpdateBouquet }) {
     if (res && res.shortUrl) {
       setShortUrlData(res);
       setActiveTab('short');
+    } else if (res) {
+      setShortUrlData(res);
     }
     setIsShortening(false);
   };
@@ -64,6 +71,10 @@ export default function ShareModal({ bouquet, onClose, onUpdateBouquet }) {
     navigator.clipboard.writeText(effectiveShareUrl);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2500);
+  };
+
+  const handleTestOpen = () => {
+    window.open(effectiveShareUrl, '_blank', 'noopener,noreferrer');
   };
 
   const handleCopyMessage = () => {
@@ -280,6 +291,24 @@ export default function ShareModal({ bouquet, onClose, onUpdateBouquet }) {
             >
               <button
                 type="button"
+                onClick={() => setActiveTab('direct')}
+                style={{
+                  padding: '3px 8px',
+                  fontSize: '0.74rem',
+                  fontWeight: activeTab === 'direct' ? 700 : 500,
+                  borderRadius: '6px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  background: activeTab === 'direct' ? 'var(--primary)' : 'transparent',
+                  color: activeTab === 'direct' ? '#ffffff' : 'var(--text-muted)',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                Direct Link
+              </button>
+
+              <button
+                type="button"
                 onClick={() => setActiveTab('short')}
                 style={{
                   padding: '3px 8px',
@@ -300,57 +329,47 @@ export default function ShareModal({ bouquet, onClose, onUpdateBouquet }) {
                 Short Link
                 {isShortening ? (
                   <RefreshCw size={10} style={{ animation: 'spin 1s linear infinite' }} />
-                ) : shortUrlData ? (
+                ) : shortUrlData?.shortUrl ? (
                   <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: '#4ade80' }} />
                 ) : null}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setActiveTab('direct')}
-                style={{
-                  padding: '3px 8px',
-                  fontSize: '0.74rem',
-                  fontWeight: activeTab === 'direct' ? 700 : 500,
-                  borderRadius: '6px',
-                  border: 'none',
-                  cursor: 'pointer',
-                  background: activeTab === 'direct' ? 'var(--primary)' : 'transparent',
-                  color: activeTab === 'direct' ? '#ffffff' : 'var(--text-muted)',
-                  transition: 'all 0.15s ease'
-                }}
-              >
-                Direct Link
               </button>
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
             <input
               type="text"
               readOnly
-              value={isShortening && activeTab === 'short' ? 'Shortening link for easy sharing across the miles...' : effectiveShareUrl}
+              value={effectiveShareUrl}
               style={{
-                flex: 1,
+                flex: '1 1 200px',
                 padding: '0.6rem 0.85rem',
                 fontSize: '0.85rem',
                 fontFamily: activeTab === 'short' ? 'inherit' : 'monospace',
                 borderRadius: '8px',
                 border: '1px solid var(--bg-card-border)',
                 background: 'var(--bg-secondary)',
-                color: isShortening && activeTab === 'short' ? 'var(--text-muted)' : 'var(--text-main)',
+                color: 'var(--text-main)',
                 outline: 'none',
                 textOverflow: 'ellipsis'
               }}
             />
             <button
               onClick={handleCopyLink}
-              disabled={isShortening && activeTab === 'short'}
               className="sketch-button sketch-button-primary"
-              style={{ padding: '0.6rem 1.1rem', fontSize: '0.85rem', whiteSpace: 'nowrap' }}
+              style={{ padding: '0.6rem 0.95rem', fontSize: '0.85rem', whiteSpace: 'nowrap' }}
             >
               {copiedLink ? <Check size={16} /> : <Copy size={16} />}
-              {copiedLink ? 'Copied!' : activeTab === 'short' ? 'Copy Short Link' : 'Copy Link'}
+              {copiedLink ? 'Copied!' : activeTab === 'short' && shortUrlData?.shortUrl ? 'Copy Short Link' : 'Copy Link'}
+            </button>
+            <button
+              onClick={handleTestOpen}
+              className="sketch-button"
+              title="Test open your bouquet link in a new tab"
+              style={{ padding: '0.6rem 0.85rem', fontSize: '0.85rem', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '4px' }}
+            >
+              <ExternalLink size={15} />
+              Open Preview
             </button>
           </div>
 
@@ -361,10 +380,10 @@ export default function ShareModal({ bouquet, onClose, onUpdateBouquet }) {
             </p>
           )}
 
-          {!copiedLink && activeTab === 'short' && shortUrlData && (
+          {!copiedLink && activeTab === 'short' && shortUrlData?.shortUrl && (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '4px', marginTop: '6px', fontSize: '0.76rem', color: 'var(--text-muted)' }}>
               <span>
-                ✨ Compact short URL powered by <strong>{shortUrlData.provider}</strong> (clean & easy to text or DM).
+                ✨ Compact short URL powered by <strong>{shortUrlData.provider}</strong>.
               </span>
               {shortUrlData.isLocalMapped && (
                 <span title="Running locally; mapped to your public GitHub Pages so your partner can open it!" style={{ color: 'var(--primary)', fontWeight: 600, fontSize: '0.74rem' }}>
@@ -374,9 +393,15 @@ export default function ShareModal({ bouquet, onClose, onUpdateBouquet }) {
             </div>
           )}
 
-          {!copiedLink && activeTab === 'short' && !isShortening && !shortUrlData && (
+          {!copiedLink && activeTab === 'short' && shortUrlData?.pagesNotDeployed && (
+            <div style={{ marginTop: '6px', fontSize: '0.76rem', color: '#b45309', background: '#fef3c7', padding: '0.4rem 0.6rem', borderRadius: '6px', border: '1px dashed #f59e0b' }}>
+              ⚠️ GitHub Pages is not live yet (HTTP 404). Use the <strong>Direct Link</strong> to preview and test right now! Once your GitHub Actions deployment finishes, the short link will activate.
+            </div>
+          )}
+
+          {!copiedLink && activeTab === 'short' && !isShortening && !shortUrlData?.shortUrl && !shortUrlData?.pagesNotDeployed && (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '6px', fontSize: '0.76rem', color: 'var(--text-muted)' }}>
-              <span>Using compressed direct link.</span>
+              <span>Shortener unavailable. Using compressed direct link.</span>
               <button
                 type="button"
                 onClick={handleManualShorten}
@@ -389,7 +414,11 @@ export default function ShareModal({ bouquet, onClose, onUpdateBouquet }) {
 
           {!copiedLink && activeTab === 'direct' && (
             <div style={{ marginTop: '6px', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-              🔒 Standalone compressed link: Never expires and works 100% offline without third-party servers.
+              {isLocal ? (
+                <span>🏠 <strong>Local link:</strong> Opens in 0ms on your computer to preview your flowers and secret notes!</span>
+              ) : (
+                <span>🔒 <strong>Standalone link:</strong> Encoded with LZ compression. Never expires, requires no external servers.</span>
+              )}
             </div>
           )}
         </div>
