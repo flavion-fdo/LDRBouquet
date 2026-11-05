@@ -1,4 +1,5 @@
 // Bouquet State Serializer & Long Distance Couple Presets
+import LZString from 'lz-string';
 
 export const PRESET_BOUQUETS = [
   {
@@ -84,38 +85,53 @@ export function encodeBouquetToHash(bouquet) {
       dis: bouquet.tagDistance || '',
       tm: bouquet.tagMessage || '',
       th: bouquet.theme || 'parchment',
-      f: (bouquet.flowers || []).map(flower => {
+      f: (bouquet.flowers || []).map((flower, idx) => {
         const item = {
-          id: flower.id,
+          id: flower.id || `f-${idx + 1}`,
           t: flower.type,
           c: flower.color,
-          s: flower.scale,
-          r: flower.rotation,
-          x: Math.round(flower.position.x),
-          y: Math.round(flower.position.y),
-          m: flower.message || '',
-          ct: flower.cardTheme || 'parchment'
+          x: Math.round(flower.position?.x ?? 50),
+          y: Math.round(flower.position?.y ?? 50)
         };
+        if (flower.scale !== undefined && flower.scale !== 1) {
+          item.s = Math.round(flower.scale * 100) / 100;
+        }
+        if (flower.rotation) {
+          item.r = Math.round(flower.rotation);
+        }
+        if (flower.message && flower.message.trim()) {
+          item.m = flower.message.trim();
+        }
+        if (flower.cardTheme && flower.cardTheme !== 'parchment') {
+          item.ct = flower.cardTheme;
+        }
         if (flower.mediaImage) item.img = flower.mediaImage;
         if (flower.mediaAudio) item.aud = flower.mediaAudio;
         if (flower.mediaVideo) item.vid = flower.mediaVideo;
         return item;
       }),
-      g: (bouquet.greenery || []).map(green => ({
-        id: green.id,
-        t: green.type,
-        c: green.color,
-        s: green.scale,
-        r: green.rotation,
-        x: Math.round(green.position.x),
-        y: Math.round(green.position.y)
-      }))
+      g: (bouquet.greenery || []).map((green, idx) => {
+        const item = {
+          id: green.id || `g-${idx + 1}`,
+          t: green.type,
+          c: green.color,
+          x: Math.round(green.position?.x ?? 50),
+          y: Math.round(green.position?.y ?? 55)
+        };
+        if (green.scale !== undefined && green.scale !== 1) {
+          item.s = Math.round(green.scale * 100) / 100;
+        }
+        if (green.rotation) {
+          item.r = Math.round(green.rotation);
+        }
+        return item;
+      })
     };
 
     const jsonStr = JSON.stringify(compactData);
-    // encode to base64 safely for URL
-    const b64 = btoa(encodeURIComponent(jsonStr));
-    return b64;
+    // Compress with LZString for massive link shortening
+    const compressed = LZString.compressToEncodedURIComponent(jsonStr);
+    return `v2:${compressed}`;
   } catch (err) {
     console.error('Failed to encode bouquet state:', err);
     return '';
@@ -125,9 +141,44 @@ export function encodeBouquetToHash(bouquet) {
 export function decodeHashToBouquet(hashString) {
   if (!hashString) return null;
   try {
-    const cleanHash = hashString.replace(/^#/, '');
-    const jsonStr = decodeURIComponent(atob(cleanHash));
-    const compact = JSON.parse(jsonStr);
+    let cleanHash = hashString.replace(/^#/, '');
+    let compact = null;
+
+    // 1. Check for v2 LZString compressed format
+    if (cleanHash.startsWith('v2:')) {
+      const payload = cleanHash.slice(3);
+      const decompressed = LZString.decompressFromEncodedURIComponent(payload);
+      if (decompressed) {
+        compact = JSON.parse(decompressed);
+      }
+    } else {
+      // 2. Try LZString decompress in case prefix was omitted
+      try {
+        const decompressed = LZString.decompressFromEncodedURIComponent(cleanHash);
+        if (decompressed && decompressed.startsWith('{')) {
+          compact = JSON.parse(decompressed);
+        }
+      } catch (e) {
+        // Not LZString
+      }
+
+      // 3. Fallback to legacy base64 encoded JSON
+      if (!compact) {
+        try {
+          const jsonStr = decodeURIComponent(atob(cleanHash));
+          compact = JSON.parse(jsonStr);
+        } catch (e1) {
+          try {
+            const raw = atob(cleanHash);
+            compact = JSON.parse(raw);
+          } catch (e2) {
+            console.error('Failed to parse hash format');
+          }
+        }
+      }
+    }
+
+    if (!compact) return null;
 
     return {
       title: compact.t || 'Long Distance Bouquet',
@@ -138,26 +189,26 @@ export function decodeHashToBouquet(hashString) {
       tagDistance: compact.dis || '',
       tagMessage: compact.tm || '',
       theme: compact.th || 'parchment',
-      flowers: (compact.f || []).map(flower => ({
-        id: flower.id,
+      flowers: (compact.f || []).map((flower, idx) => ({
+        id: flower.id || `f-${idx + 1}`,
         type: flower.t,
         color: flower.c,
-        scale: flower.s || 1,
+        scale: flower.s !== undefined ? flower.s : 1,
         rotation: flower.r || 0,
-        position: { x: flower.x || 50, y: flower.y || 50 },
+        position: { x: flower.x ?? 50, y: flower.y ?? 50 },
         message: flower.m || '',
         cardTheme: flower.ct || 'parchment',
         mediaImage: flower.img || '',
         mediaAudio: flower.aud || '',
         mediaVideo: flower.vid || ''
       })),
-      greenery: (compact.g || []).map(green => ({
-        id: green.id,
+      greenery: (compact.g || []).map((green, idx) => ({
+        id: green.id || `g-${idx + 1}`,
         type: green.t,
         color: green.c,
-        scale: green.s || 1,
+        scale: green.s !== undefined ? green.s : 1,
         rotation: green.r || 0,
-        position: { x: green.x || 50, y: green.y || 55 }
+        position: { x: green.x ?? 50, y: green.y ?? 55 }
       }))
     };
   } catch (err) {

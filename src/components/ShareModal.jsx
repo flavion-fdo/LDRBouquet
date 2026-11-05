@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { X, Copy, Check, Share2, Heart, Gift, MessageCircle, Send, Mail, Plane, Sparkles, Edit3 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Copy, Check, Share2, Heart, Gift, MessageCircle, Send, Mail, Plane, Sparkles, Edit3, Link2, RefreshCw } from 'lucide-react';
 import { encodeBouquetToHash } from '../utils/bouquetEncoder';
+import { shortenUrl } from '../utils/urlShortener';
 
 export default function ShareModal({ bouquet, onClose, onUpdateBouquet }) {
   const [copiedLink, setCopiedLink] = useState(false);
@@ -8,15 +9,59 @@ export default function ShareModal({ bouquet, onClose, onUpdateBouquet }) {
   const [isEditingTag, setIsEditingTag] = useState(false);
 
   const hash = encodeBouquetToHash(bouquet);
-  const shareUrl = `${window.location.origin}${window.location.pathname}#${hash}`;
+  const directUrl = `${window.location.origin}${window.location.pathname}#${hash}`;
+
+  const [shortUrlData, setShortUrlData] = useState(null);
+  const [isShortening, setIsShortening] = useState(true);
+  const [activeTab, setActiveTab] = useState('short'); // 'short' | 'direct'
+
+  useEffect(() => {
+    let isMounted = true;
+    setIsShortening(true);
+
+    shortenUrl(directUrl)
+      .then((res) => {
+        if (!isMounted) return;
+        if (res && res.shortUrl) {
+          setShortUrlData(res);
+          setActiveTab('short');
+        } else {
+          setActiveTab('direct');
+        }
+        setIsShortening(false);
+      })
+      .catch(() => {
+        if (!isMounted) return;
+        setActiveTab('direct');
+        setIsShortening(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [directUrl]);
+
+  const handleManualShorten = async () => {
+    setIsShortening(true);
+    const res = await shortenUrl(directUrl);
+    if (res && res.shortUrl) {
+      setShortUrlData(res);
+      setActiveTab('short');
+    }
+    setIsShortening(false);
+  };
+
+  const effectiveShareUrl = (activeTab === 'short' && shortUrlData?.shortUrl)
+    ? shortUrlData.shortUrl
+    : directUrl;
 
   const notesCount = (bouquet.flowers || []).filter((f) => (f.message && f.message.trim()) || f.mediaImage || f.mediaAudio || f.mediaVideo).length;
   const totalCount = (bouquet.flowers || []).length;
 
-  const romanticMessage = `I handcrafted a virtual flower bouquet with secret notes hidden inside just for you across the miles! 🌸\n\nOpen each flower to unveil my secret notes:\n${shareUrl}`;
+  const romanticMessage = `I handcrafted a virtual flower bouquet with secret notes hidden inside just for you across the miles! 🌸\n\nOpen each flower to unveil my secret notes:\n${effectiveShareUrl}`;
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(shareUrl);
+    navigator.clipboard.writeText(effectiveShareUrl);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2500);
   };
@@ -33,13 +78,13 @@ export default function ShareModal({ bouquet, onClose, onUpdateBouquet }) {
   };
 
   const shareViaTelegram = () => {
-    const url = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent('I made a virtual flower bouquet with secret notes for you across the miles! 💌')}`;
+    const url = `https://t.me/share/url?url=${encodeURIComponent(effectiveShareUrl)}&text=${encodeURIComponent('I made a virtual flower bouquet with secret notes for you across the miles! 💌')}`;
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   const shareViaEmail = () => {
     const subject = encodeURIComponent('A Handcrafted Bouquet With Secret Notes 💐');
-    const body = encodeURIComponent(`My love,\n\nI handcrafted a special bouquet of virtual flowers for you across the miles. Each flower contains a hidden secret note written just for you.\n\nOpen each blossom here to read them:\n${shareUrl}\n\nWith all my love`);
+    const body = encodeURIComponent(`My love,\n\nI handcrafted a special bouquet of virtual flowers for you across the miles. Each flower contains a hidden secret note written just for you.\n\nOpen each blossom here to read them:\n${effectiveShareUrl}\n\nWith all my love`);
     window.location.href = `mailto:?subject=${subject}&body=${body}`;
   };
 
@@ -215,41 +260,137 @@ export default function ShareModal({ bouquet, onClose, onUpdateBouquet }) {
           )}
         </div>
 
-        {/* Direct Link Section */}
+        {/* Gift Link Section with Short Link / Direct Link Tabs */}
         <div style={{ marginBottom: '1.25rem' }}>
-          <label style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
-            Interactive Gift Link:
-          </label>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+            <label style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-muted)' }}>
+              Interactive Gift Link:
+            </label>
+
+            {/* Link Type Switcher */}
+            <div
+              style={{
+                display: 'inline-flex',
+                gap: '3px',
+                background: 'var(--bg-secondary)',
+                padding: '2px',
+                borderRadius: '8px',
+                border: '1px solid var(--border-sketch)'
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => setActiveTab('short')}
+                style={{
+                  padding: '3px 8px',
+                  fontSize: '0.74rem',
+                  fontWeight: activeTab === 'short' ? 700 : 500,
+                  borderRadius: '6px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  background: activeTab === 'short' ? 'var(--primary)' : 'transparent',
+                  color: activeTab === 'short' ? '#ffffff' : 'var(--text-muted)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <Link2 size={12} />
+                Short Link
+                {isShortening ? (
+                  <RefreshCw size={10} style={{ animation: 'spin 1s linear infinite' }} />
+                ) : shortUrlData ? (
+                  <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: '#4ade80' }} />
+                ) : null}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab('direct')}
+                style={{
+                  padding: '3px 8px',
+                  fontSize: '0.74rem',
+                  fontWeight: activeTab === 'direct' ? 700 : 500,
+                  borderRadius: '6px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  background: activeTab === 'direct' ? 'var(--primary)' : 'transparent',
+                  color: activeTab === 'direct' ? '#ffffff' : 'var(--text-muted)',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                Direct Link
+              </button>
+            </div>
+          </div>
+
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             <input
               type="text"
               readOnly
-              value={shareUrl}
+              value={isShortening && activeTab === 'short' ? 'Shortening link for easy sharing across the miles...' : effectiveShareUrl}
               style={{
                 flex: 1,
                 padding: '0.6rem 0.85rem',
                 fontSize: '0.85rem',
+                fontFamily: activeTab === 'short' ? 'inherit' : 'monospace',
                 borderRadius: '8px',
                 border: '1px solid var(--bg-card-border)',
                 background: 'var(--bg-secondary)',
-                color: 'var(--text-main)',
+                color: isShortening && activeTab === 'short' ? 'var(--text-muted)' : 'var(--text-main)',
                 outline: 'none',
                 textOverflow: 'ellipsis'
               }}
             />
             <button
               onClick={handleCopyLink}
+              disabled={isShortening && activeTab === 'short'}
               className="sketch-button sketch-button-primary"
               style={{ padding: '0.6rem 1.1rem', fontSize: '0.85rem', whiteSpace: 'nowrap' }}
             >
               {copiedLink ? <Check size={16} /> : <Copy size={16} />}
-              {copiedLink ? 'Copied!' : 'Copy Link'}
+              {copiedLink ? 'Copied!' : activeTab === 'short' ? 'Copy Short Link' : 'Copy Link'}
             </button>
           </div>
+
+          {/* Sub-status & Info notes */}
           {copiedLink && (
             <p style={{ fontSize: '0.8rem', color: 'var(--accent-sage)', marginTop: '4px', fontWeight: 600 }}>
               ✨ Gift link copied! Send it in your chat with your loved one.
             </p>
+          )}
+
+          {!copiedLink && activeTab === 'short' && shortUrlData && (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '4px', marginTop: '6px', fontSize: '0.76rem', color: 'var(--text-muted)' }}>
+              <span>
+                ✨ Compact short URL powered by <strong>{shortUrlData.provider}</strong> (clean & easy to text or DM).
+              </span>
+              {shortUrlData.isLocalMapped && (
+                <span title="Running locally; mapped to your public GitHub Pages so your partner can open it!" style={{ color: 'var(--primary)', fontWeight: 600, fontSize: '0.74rem' }}>
+                  ✈️ Mapped to GitHub Pages
+                </span>
+              )}
+            </div>
+          )}
+
+          {!copiedLink && activeTab === 'short' && !isShortening && !shortUrlData && (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '6px', fontSize: '0.76rem', color: 'var(--text-muted)' }}>
+              <span>Using compressed direct link.</span>
+              <button
+                type="button"
+                onClick={handleManualShorten}
+                style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '3px', fontSize: '0.75rem' }}
+              >
+                <RefreshCw size={11} /> Try Shorten Again
+              </button>
+            </div>
+          )}
+
+          {!copiedLink && activeTab === 'direct' && (
+            <div style={{ marginTop: '6px', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+              🔒 Standalone compressed link: Never expires and works 100% offline without third-party servers.
+            </div>
           )}
         </div>
 
