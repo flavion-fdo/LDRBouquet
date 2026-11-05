@@ -617,7 +617,7 @@ export default function BouquetCanvas({
           const leafAngle = isLeft ? -35 : 35;
 
           const isSelected = selectedFlowerId === flower.id;
-          const isDragging = draggingFlowerId === flower.id;
+          const isDragging = draggingId === flower.id && draggingType === 'flower';
 
           return (
             <g key={`stem-group-${flower.id}`}>
