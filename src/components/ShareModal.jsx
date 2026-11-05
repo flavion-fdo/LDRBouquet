@@ -28,12 +28,7 @@ export default function ShareModal({ bouquet, onClose, onUpdateBouquet }) {
         setIsShortening(false);
         if (res && res.shortUrl) {
           setShortUrlData(res);
-          // Only switch to short if public link is active
-          if (!res.pagesNotDeployed && !isLocal) {
-            setActiveTab('short');
-          }
-        } else if (res) {
-          setShortUrlData(res);
+          setActiveTab('short');
         }
       })
       .catch(() => {
@@ -44,7 +39,7 @@ export default function ShareModal({ bouquet, onClose, onUpdateBouquet }) {
     return () => {
       isMounted = false;
     };
-  }, [directUrl, isLocal]);
+  }, [directUrl]);
 
   const handleManualShorten = async () => {
     setIsShortening(true);
@@ -385,23 +380,15 @@ export default function ShareModal({ bouquet, onClose, onUpdateBouquet }) {
               <span>
                 ✨ Compact short URL powered by <strong>{shortUrlData.provider}</strong>.
               </span>
-              {shortUrlData.isLocalMapped && (
-                <span title="Running locally; mapped to your public GitHub Pages so your partner can open it!" style={{ color: 'var(--primary)', fontWeight: 600, fontSize: '0.74rem' }}>
-                  ✈️ Mapped to GitHub Pages
-                </span>
-              )}
+              <span title="Ready to send across the miles!" style={{ color: 'var(--primary)', fontWeight: 600, fontSize: '0.74rem' }}>
+                💌 Ready to Send Across The Miles
+              </span>
             </div>
           )}
 
-          {!copiedLink && activeTab === 'short' && shortUrlData?.pagesNotDeployed && (
-            <div style={{ marginTop: '6px', fontSize: '0.76rem', color: '#b45309', background: '#fef3c7', padding: '0.4rem 0.6rem', borderRadius: '6px', border: '1px dashed #f59e0b' }}>
-              ⚠️ GitHub Pages is not live yet (HTTP 404). Use the <strong>Direct Link</strong> to preview and test right now! Once your GitHub Actions deployment finishes, the short link will activate.
-            </div>
-          )}
-
-          {!copiedLink && activeTab === 'short' && !isShortening && !shortUrlData?.shortUrl && !shortUrlData?.pagesNotDeployed && (
+          {!copiedLink && activeTab === 'short' && !isShortening && !shortUrlData?.shortUrl && (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '6px', fontSize: '0.76rem', color: 'var(--text-muted)' }}>
-              <span>Shortener unavailable. Using compressed direct link.</span>
+              <span>Shortener service busy. Using compressed direct link.</span>
               <button
                 type="button"
                 onClick={handleManualShorten}
@@ -414,11 +401,7 @@ export default function ShareModal({ bouquet, onClose, onUpdateBouquet }) {
 
           {!copiedLink && activeTab === 'direct' && (
             <div style={{ marginTop: '6px', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-              {isLocal ? (
-                <span>🏠 <strong>Local link:</strong> Opens in 0ms on your computer to preview your flowers and secret notes!</span>
-              ) : (
-                <span>🔒 <strong>Standalone link:</strong> Encoded with LZ compression. Never expires, requires no external servers.</span>
-              )}
+              <span>🔒 <strong>Standalone link:</strong> Encoded with LZ compression. Works 100% offline without third-party shorteners.</span>
             </div>
           )}
         </div>
