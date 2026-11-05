@@ -18,7 +18,7 @@ An interactive, hand-drawn virtual bouquet studio designed specifically for long
   - 🏷️ **Dynamic Bloom Badges**: Canvas indicators highlight which flowers contain letters, photos, voice notes, or videos.
 - ✈️ **Custom Airmail Dedication Tags**: Specify *To*, *From*, *Miles Apart / Distance*, and dedication messages with a direct click-to-edit modal on the canvas.
 - 🎨 **Packaging & Ribbon Customization**: Airmail Kraft Cone, Romantic Satin Silk, Vintage Love Letters, Glass Crystal Vase, and Starlit Midnight.
-- 🔗 **Instant Short Links & LZ-Compression**: Encodes bouquet states into ultra-compact URL hashes with built-in automatic URL shortening (via is.gd / v.gd) for clean texting over WhatsApp, iMessage, and Instagram.
+- 🔗 **Instant Short Links & LZ-Compression**: Encodes bouquet states into ultra-compact URL hashes with built-in automatic URL shortening (via v.gd / is.gd) for clean texting over WhatsApp, iMessage, and Instagram.
 - 📲 **One-Click Social Sharing**: Direct sharing to WhatsApp, Telegram, Email, or instant copy formatted for iMessage, Instagram DM, and Discord.
 - 🎁 **Recipient Airmail Presentation Mode**: When your partner opens the link, they experience a full-screen gift opening with ambient falling petals, celebration confetti, and petal-by-petal secret note discovery.
 - 🔁 **Reply Bouquet**: Loved ones can click "Send One Back!" after reading all notes to return the love with their own bouquet.
