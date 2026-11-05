@@ -302,6 +302,8 @@ export default function BouquetCanvas({
       style={{
         position: 'relative',
         width: '100%',
+        maxWidth: '560px',
+        margin: '0 auto',
         minHeight: isMobile ? '460px' : '560px',
         height: isMobile ? '510px' : '590px',
         overflow: 'hidden',
@@ -625,11 +627,12 @@ export default function BouquetCanvas({
                 e.stopPropagation();
                 handleFlowerClick(flower);
               }}
-              className={mode === 'preview' ? 'animate-sway' : ''}
               style={{
                 position: 'absolute',
                 left: `${flower.position.x}%`,
                 top: `${flower.position.y}%`,
+                width: `${bloomSize}px`,
+                height: `${bloomSize}px`,
                 transform: `translate(-50%, -50%) rotate(${flower.rotation || 0}deg) scale(${isDragging ? (flower.scale || 1) * 1.08 : isSelected ? (flower.scale || 1) * 1.04 : (flower.scale || 1)})`,
                 cursor: mode === 'studio' ? (isDragging ? 'grabbing' : 'grab') : 'pointer',
                 pointerEvents: 'auto',
@@ -670,13 +673,17 @@ export default function BouquetCanvas({
                       : 'Has secret love letter!'
                   }
                   style={{
+                    position: 'absolute',
+                    top: '-6px',
+                    right: '-6px',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '2px',
-                    padding: hasImage || hasAudio || hasVideo ? '2px 5px' : '0',
+                    padding: hasImage || hasAudio || hasVideo ? '2px 6px' : '0',
                     width: hasImage || hasAudio || hasVideo ? 'auto' : isMobile ? '22px' : '26px',
                     height: isMobile ? '22px' : '26px',
-                    borderRadius: '14px'
+                    borderRadius: '14px',
+                    zIndex: 10
                   }}
                 >
                   {hasAudio ? (

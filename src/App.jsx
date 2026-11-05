@@ -281,7 +281,8 @@ export default function App() {
           /* Presentation / Recipient Full Screen View */
           <div
             style={{
-              maxWidth: '800px',
+              maxWidth: '560px',
+              width: '100%',
               margin: '0 auto',
               display: 'flex',
               flexDirection: 'column',
