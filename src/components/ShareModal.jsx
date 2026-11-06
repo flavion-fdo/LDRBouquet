@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Copy, Check, MessageCircle, Send, Mail, Plane, ExternalLink, RefreshCw } from 'lucide-react';
+import { X, Copy, Check, MessageCircle, Send, Mail, Plane, ExternalLink, RefreshCw, Sparkles } from 'lucide-react';
 import { encodeBouquetToHash } from '../utils/bouquetEncoder';
 import { createShortLink } from '../utils/urlShortener';
 
